@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
 # Admin Auth
 
-# POST /api/admin/login
+# login
 @router.post("/login")
 def admin_login(request: Request, body: AdminLoginRequest, cur=Depends(get_db)):
     cur.execute(
@@ -30,7 +30,7 @@ def admin_login(request: Request, body: AdminLoginRequest, cur=Depends(get_db)):
     return {"success": True, "message": "Admin logged in", "admin": admin_data}
 
 
-# POST /api/admin/logout
+# logout
 @router.post("/logout")
 def admin_logout(request: Request):
     request.session.pop("admin", None)
@@ -40,7 +40,7 @@ def admin_logout(request: Request):
 #Product CRUD
 
 
-# GET /api/admin/products
+# GET products
 @router.get("/products")
 def get_all_products(cur=Depends(get_db), admin: dict = Depends(require_admin)):
     cur.execute(
@@ -55,7 +55,7 @@ def get_all_products(cur=Depends(get_db), admin: dict = Depends(require_admin)):
     return {"success": True, "count": len(rows), "products": [dict(r) for r in rows]}
 
 
-# POST /api/admin/products
+# POST products
 @router.post("/products")
 def add_product(
     body: AddProductRequest,
@@ -76,7 +76,7 @@ def add_product(
     }
 
 
-# PUT /api/admin/products/{id}
+# PUT products/{id}
 @router.put("/products/{product_id}")
 def edit_product(
     product_id: int,
@@ -106,7 +106,7 @@ def edit_product(
     return {"success": True, "message": "Product updated"}
 
 
-# DELETE /api/admin/products/{id}
+# DELETE products/{id}
 @router.delete("/products/{product_id}")
 def delete_product(
     product_id: int,
