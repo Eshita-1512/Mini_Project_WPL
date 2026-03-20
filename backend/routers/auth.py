@@ -6,7 +6,7 @@ from schemas.models import RegisterRequest, LoginRequest
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
-# POST /api/auth/register — Register new user
+# Register new user
 @router.post("/register")
 def register(request: Request, body: RegisterRequest, cur=Depends(get_db)):
     # Check if user already exists
@@ -39,7 +39,7 @@ def register(request: Request, body: RegisterRequest, cur=Depends(get_db)):
     }
 
 
-# POST /api/auth/login — User login
+# User login
 @router.post("/login")
 def login(request: Request, body: LoginRequest, cur=Depends(get_db)):
     cur.execute("SELECT * FROM users WHERE email = %s", (body.email,))
@@ -59,16 +59,17 @@ def login(request: Request, body: LoginRequest, cur=Depends(get_db)):
     return {"success": True, "message": "Logged in", "user": user_data}
 
 
-# POST /api/auth/logout — User logout
+#  User logout
 @router.post("/logout")
 def logout(request: Request):
     request.session.pop("user", None)
     return {"success": True, "message": "Logged out"}
 
 
-# GET /api/auth/me — Get logged in user info
+# Get logged in user info
 @router.get("/me")
 def me(request: Request):
+    
     user = request.session.get("user")
     if not user:
         raise HTTPException(status_code=401, detail="Not logged in")
