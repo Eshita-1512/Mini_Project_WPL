@@ -6,7 +6,7 @@ from schemas.models import CartItemRequest, UpdateCartRequest
 router = APIRouter(prefix="/api/cart", tags=["Cart"])
 
 
-# GET /api/cart — View current session cart
+# GET /api/cart 
 @router.get("/")
 def get_cart(request: Request, cur=Depends(get_db)):
     cart = request.session.get("cart", [])
@@ -14,7 +14,7 @@ def get_cart(request: Request, cur=Depends(get_db)):
     if len(cart) == 0:
         return {"success": True, "cart": [], "total": 0}
 
-    # Fetch product details for each cart item
+    
     product_ids = [item["productId"] for item in cart]
     placeholders = ", ".join(["%s"] * len(product_ids))
     cur.execute(
@@ -44,7 +44,7 @@ def get_cart(request: Request, cur=Depends(get_db)):
     return {"success": True, "cart": cart_details, "total": total}
 
 
-# POST /api/cart — Add item to cart
+# POST /api/cart 
 @router.post("/")
 def add_to_cart(request: Request, body: CartItemRequest):
     if body.quantity < 1:
@@ -65,7 +65,7 @@ def add_to_cart(request: Request, body: CartItemRequest):
     return {"success": True, "message": "Item added to cart", "cart": cart}
 
 
-# PUT /api/cart/{product_id} — Update item quantity
+# PUT /api/cart/{product_id} 
 @router.put("/{product_id}")
 def update_cart_item(request: Request, product_id: int, body: UpdateCartRequest):
     if body.quantity < 1:
@@ -87,7 +87,7 @@ def update_cart_item(request: Request, product_id: int, body: UpdateCartRequest)
     return {"success": True, "message": "Cart updated", "cart": cart}
 
 
-# DELETE /api/cart/{product_id} — Remove item from cart
+# DELETE /api/cart/{product_id} 
 @router.delete("/{product_id}")
 def remove_cart_item(request: Request, product_id: int):
     cart = request.session.get("cart", [])
@@ -100,7 +100,7 @@ def remove_cart_item(request: Request, product_id: int):
     return {"success": True, "message": "Item removed from cart", "cart": request.session["cart"]}
 
 
-# DELETE /api/cart — Clear entire cart
+# DELETE /api/cart 
 @router.delete("/")
 def clear_cart(request: Request):
     request.session["cart"] = []
