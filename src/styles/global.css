@@ -1,0 +1,159 @@
+/* ================================================================
+   GAURA — Global Design System
+   Handwoven Banarasi Sarees | Premium E-Commerce
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --maroon:       #800020;
+  --maroon-dark:  #5a0016;
+  --maroon-light: #a0253a;
+  --crimson:      #DC143C;
+  --rani-pink:    #E75480;
+  --rose-gold:    #B76E79;
+  --royal-blue:   #4169E1;
+  --teal:         #008080;
+  --emerald:      #50C878;
+  --turmeric:     #E3A018;
+  --ivory:        #FFFFF0;
+  --champagne:    #F7E7CE;
+  --purple:       #7851A9;
+  --black:        #1C1C1C;
+
+  --bg:           #F9F0E3;
+  --bg-light:     #FDF6EC;
+  --surface:      #ffffff;
+  --text:         #2D1B1B;
+  --text-muted:   #7A5C5C;
+  --border:       #E8D5C4;
+
+  --shadow-sm:    0 2px 8px rgba(128,0,32,0.08);
+  --shadow-md:    0 6px 20px rgba(128,0,32,0.12);
+  --shadow-lg:    0 16px 48px rgba(128,0,32,0.16);
+
+  --radius-sm:    8px;
+  --radius-md:    14px;
+  --radius-lg:    22px;
+
+  --transition:   0.22s cubic-bezier(0.4,0,0.2,1);
+
+  --navbar-h:     64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; line-height: 1.25; }
+a { text-decoration: none; color: inherit; }
+button { font-family: 'Inter', sans-serif; cursor: pointer; border: none; }
+img { max-width: 100%; display: block; }
+
+/* ─── Layout ── */
+.container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+/* ─── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 7px; padding: 11px 26px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500; letter-spacing: 0.3px;
+  transition: var(--transition); cursor: pointer; border: none;
+}
+.btn-primary { background: var(--maroon); color: white; }
+.btn-primary:hover { background: var(--maroon-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-outline { background: transparent; color: var(--maroon); border: 2px solid var(--maroon); }
+.btn-outline:hover { background: var(--maroon); color: white; }
+.btn-danger { background: #c0392b; color: white; }
+.btn-danger:hover { background: #a93226; }
+.btn-sm { padding: 7px 16px; font-size: 13px; }
+.btn-full { width: 100%; }
+
+/* ─── Form ── */
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+.form-group label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.form-input {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 14px; font-family: 'Inter', sans-serif;
+  background: white; color: var(--text);
+  transition: var(--transition); outline: none;
+}
+.form-input:focus { border-color: var(--maroon); box-shadow: 0 0 0 3px rgba(128,0,32,0.09); }
+
+/* ─── Cards ── */
+.card {
+  background: var(--surface); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+  transition: var(--transition);
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+
+/* ─── Price ── */
+.price-original { text-decoration: line-through; color: var(--text-muted); font-size: 13px; }
+.price-discounted { color: var(--maroon); font-weight: 700; font-size: 17px; font-family: 'Cormorant Garamond', serif; }
+
+/* ─── Section headings ── */
+.section-header { text-align: center; margin-bottom: 44px; }
+.section-title { font-size: 38px; font-weight: 700; color: var(--maroon); margin-bottom: 8px; }
+.section-sub { color: var(--text-muted); font-size: 15px; margin-bottom: 10px; }
+.divider { width: 54px; height: 3px; background: var(--turmeric); margin: 10px auto 0; border-radius: 2px; }
+
+/* ─── Badge ── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-sale { background: var(--crimson); color: white; }
+.badge-new  { background: var(--teal); color: white; }
+
+/* ─── Animations ── */
+@keyframes fadeInUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes pulse    { 0%,100%{transform:scale(1);} 50%{transform:scale(1.04);} }
+@keyframes shimmer  { 0%{background-position:-400px 0;} 100%{background-position:400px 0;} }
+@keyframes spin     { to { transform: rotate(360deg); } }
+
+.fade-in-up { animation: fadeInUp 0.45s ease both; }
+
+/* ─── Spinner ── */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--maroon);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 40px auto;
+}
+
+/* ─── Skeleton ── */
+.skeleton {
+  background: linear-gradient(90deg, #ecddd0 25%, #e0ccbc 50%, #ecddd0 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--maroon); color: white;
+  padding: 13px 20px; border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg); font-size: 14px; font-weight: 500;
+  z-index: 9999; animation: fadeInUp 0.3s ease;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast-success { background: #1a6b3c; }
+.toast-error   { background: #b91c1c; }
+
+/* ─── Empty state ── */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state h3 { font-size: 26px; color: var(--maroon); margin-bottom: 10px; }
+.empty-state p  { color: var(--text-muted); margin-bottom: 24px; }
+
+/* ─── Page wrapper ── */
+.page { min-height: calc(100vh - var(--navbar-h)); background: var(--bg); padding: 40px 0 80px; }
