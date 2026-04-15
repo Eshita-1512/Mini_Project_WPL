@@ -18,7 +18,7 @@ import Feedback from "./pages/feedback.jsx";
 import AdminLayout from "./pages/admin.jsx";
 import AdminLogin from "./pages/adminlogin.jsx";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const CART_KEY = "gaura_cart";
 
 // ─── localStorage helpers ───────────────────────────────────────────────────

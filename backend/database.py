@@ -15,15 +15,21 @@ def connect_db():
     """Create the sync connection pool on startup."""
     global db_pool
     try:
-        db_pool = psycopg2.pool.ThreadedConnectionPool(
-            1, 10,
-            host=os.getenv("DB_HOST", "localhost"),
-            port=os.getenv("DB_PORT", "5432"),
-            user=os.getenv("DB_USER", "postgres"),
-            password=os.getenv("DB_PASSWORD", ""),
-            dbname=os.getenv("DB_NAME", "Gaura_db"),
-            sslmode=os.getenv("DB_SSLMODE", "require")
-        )
+        # Support Vercel Postgres/Neon full connection string if present
+        dsn = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL")
+        
+        if dsn:
+            db_pool = psycopg2.pool.ThreadedConnectionPool(1, 10, dsn)
+        else:
+            db_pool = psycopg2.pool.ThreadedConnectionPool(
+                1, 10,
+                host=os.getenv("DB_HOST", "localhost"),
+                port=os.getenv("DB_PORT", "5432"),
+                user=os.getenv("DB_USER", "postgres"),
+                password=os.getenv("DB_PASSWORD", ""),
+                dbname=os.getenv("DB_NAME", "Gaura_db"),
+                sslmode=os.getenv("DB_SSLMODE", "require")
+            )
         if db_pool:
             print("✅ Connected to PostgreSQL")
     except (Exception, psycopg2.DatabaseError) as error:

@@ -11,7 +11,7 @@ import saree6 from "../assets/saree6.jpeg";
 import saree7 from "../assets/saree7.jpeg";
 import saree8 from "../assets/saree8.jpeg";
 
-const API = "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // ── Static fallback — shown when backend is unavailable ──────────────────────
 const FALLBACK_PRODUCTS = [
