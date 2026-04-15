@@ -41,6 +41,7 @@ function Register({ onLogin, showToast }) {
           email: form.email,
           phone: form.phone,
           city: form.city,
+          country: "India",
           password: form.password,
         }),
       });
