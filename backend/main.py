@@ -47,6 +47,7 @@ frontend_url = raw_url.rstrip("/") if raw_url else "http://localhost:5173"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[frontend_url, "http://localhost:5173"],
+    allow_origin_regex=r"^https?:\/\/.*$", # 🚀 Dynamically allows ANY vercel/render URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
