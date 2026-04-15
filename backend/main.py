@@ -41,7 +41,9 @@ app.add_middleware(
 )
 
 # CORS
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+raw_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+frontend_url = raw_url.rstrip("/") if raw_url else "http://localhost:5173"
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[frontend_url, "http://localhost:5173"],
