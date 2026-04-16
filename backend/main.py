@@ -17,6 +17,27 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     connect_db()
+    
+    # Auto-update database schema for Razorpay
+    from database import db_pool
+    if db_pool:
+        conn = db_pool.getconn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    ALTER TABLE orders 
+                    ADD COLUMN IF NOT EXISTS razorpay_order_id VARCHAR(255),
+                    ADD COLUMN IF NOT EXISTS razorpay_payment_id VARCHAR(255),
+                    ADD COLUMN IF NOT EXISTS razorpay_signature TEXT;
+                """)
+                conn.commit()
+                print("✅ Database schema verified for Razorpay")
+        except Exception as e:
+            conn.rollback()
+            print("⚠️ Error updating database schema:", e)
+        finally:
+            db_pool.putconn(conn)
+            
     yield
     disconnect_db()
 

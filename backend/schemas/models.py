@@ -30,6 +30,12 @@ class OrderRequest(BaseModel):
     cart: List[CartItem]
 
 
+class RazorpayVerifyRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+
+
 # ─── Auth ────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):

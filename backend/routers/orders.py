@@ -1,14 +1,20 @@
+import os
+import razorpay
 from fastapi import APIRouter, Depends, Request, HTTPException
 
 from database import get_db
-from schemas.models import OrderRequest
+from schemas.models import OrderRequest, RazorpayVerifyRequest
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
+# Initialize Razorpay Client
+razorpay_client = razorpay.Client(
+    auth=(os.getenv("RAZORPAY_KEY_ID", ""), os.getenv("RAZORPAY_KEY_SECRET", ""))
+)
 
-# POST /api/orders — Place a new order
-@router.post("/")
-def place_order(request: Request, body: OrderRequest, cur=Depends(get_db)):
+# POST /api/orders/create — Calculate total and Create Razorpay Order
+@router.post("/create")
+def create_razorpay_order(request: Request, body: OrderRequest, cur=Depends(get_db)):
     if len(body.cart) == 0:
         raise HTTPException(status_code=400, detail="All fields and at least one cart item are required")
 
@@ -71,10 +77,23 @@ def place_order(request: Request, body: OrderRequest, cur=Depends(get_db)):
         (user_id, body.name, body.phone, body.address, body.city, body.pincode, "India" if shipping != 999 else "International"),
     )
 
+    # Create Razorpay Order
+    try:
+        razorpay_order = razorpay_client.order.create({
+            "amount": int(total_amount * 100),  # amount in paise
+            "currency": "INR",
+            "payment_capture": "1"
+        })
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Razorpay error: {str(e)}")
+
+    razorpay_order_id = razorpay_order['id']
+
     # Insert order
     cur.execute(
-        "INSERT INTO orders (user_id, total_amount, shipping_charge, order_status) VALUES (%s, %s, %s, %s) RETURNING order_id",
-        (user_id, total_amount, shipping, "Placed"),
+        """INSERT INTO orders (user_id, total_amount, shipping_charge, order_status, razorpay_order_id) 
+           VALUES (%s, %s, %s, %s, %s) RETURNING order_id""",
+        (user_id, total_amount, shipping, "Pending Payment", razorpay_order_id),
     )
     new_order = cur.fetchone()
     order_id = new_order["order_id"]
@@ -91,13 +110,43 @@ def place_order(request: Request, body: OrderRequest, cur=Depends(get_db)):
 
     return {
         "success": True,
-        "message": "Order placed successfully!",
+        "message": "Order created. Proceed to payment.",
         "order": {
             "orderId": order_id,
-            "totalAmount": total_amount,
-            "shipping": shipping,
-            "itemCount": len(order_items),
+            "razorpayOrderId": razorpay_order_id,
+            "amount": int(total_amount * 100),
+            "currency": "INR"
         },
+    }
+
+# POST /api/orders/verify — Verify Razorpay Payment
+@router.post("/verify")
+def verify_payment(body: RazorpayVerifyRequest, cur=Depends(get_db)):
+    try:
+        # Verify signature
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': body.razorpay_order_id,
+            'razorpay_payment_id': body.razorpay_payment_id,
+            'razorpay_signature': body.razorpay_signature
+        })
+    except razorpay.errors.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid payment signature")
+
+    # Update order in DB
+    cur.execute(
+        """UPDATE orders 
+           SET order_status = 'Paid', razorpay_payment_id = %s, razorpay_signature = %s 
+           WHERE razorpay_order_id = %s RETURNING order_id""",
+        (body.razorpay_payment_id, body.razorpay_signature, body.razorpay_order_id)
+    )
+    updated_order = cur.fetchone()
+
+    if not updated_order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    return {
+        "success": True,
+        "message": "Payment verified successfully!"
     }
 
 
