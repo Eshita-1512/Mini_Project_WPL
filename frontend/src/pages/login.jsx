@@ -34,7 +34,7 @@ function Login({ onLogin, showToast }) {
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);
-      if (showToast) showToast("Welcome back! 🎉", "success");
+      if (showToast) showToast("Welcome back!", "success");
       navigate("/");
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
@@ -105,7 +105,7 @@ function Login({ onLogin, showToast }) {
                 borderRadius: 8, padding: "10px 14px", marginBottom: 18,
                 color: "#b91c1c", fontSize: 13, display: "flex", gap: 8,
               }}>
-                ⚠️ {error}
+                {error}
               </div>
             )}
 

@@ -33,7 +33,7 @@ function OrderSummary() {
   if (error) return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center", padding: 40 }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+        <div style={{ fontSize: 48, marginBottom: 16, fontFamily: "'Cormorant Garamond', serif" }}>!</div>
         <h2 style={{ color: "var(--maroon)", fontFamily: "'Cormorant Garamond', serif", fontSize: 28 }}>
           {error}
         </h2>
@@ -51,10 +51,10 @@ function OrderSummary() {
     : "var(--turmeric)";
 
   const statusIcon = (s) =>
-    s === "delivered" ? "✅"
-    : s === "shipped"  ? "🚚"
-    : s === "cancelled" ? "❌"
-    : "⏳";
+    s === "delivered" ? "✓"
+    : s === "shipped"  ? "→"
+    : s === "cancelled" ? "✕"
+    : "•••";
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", paddingBottom: 80 }}>
@@ -70,7 +70,7 @@ function OrderSummary() {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 36, margin: "0 auto 20px",
         }}>
-          🎉
+          ✓
         </div>
         <h1 style={{
           fontFamily: "'Cormorant Garamond', serif",
@@ -128,7 +128,7 @@ function OrderSummary() {
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 22, fontWeight: 700, color: "var(--maroon)",
             }}>
-              {order?.shipping_charge === 0 ? "FREE 🚀" : `₹${order?.shipping_charge}`}
+              {order?.shipping_charge === 0 ? "FREE" : `₹${order?.shipping_charge}`}
             </span>
           </div>
 

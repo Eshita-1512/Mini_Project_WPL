@@ -39,7 +39,7 @@ function Cart({ localCart = [], showToast, onUpdateItem, onRemoveItem, onClearCa
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "36px 60px 0" }}>
         {items.length === 0 ? (
           <div className="empty-state" style={{ paddingTop: 80 }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>🛒</div>
+            <div style={{ fontSize: 48, marginBottom: 16, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)" }}>Cart</div>
             <h3>Your cart is empty</h3>
             <p>Discover our handwoven Banarasi collection and add your favourite pieces.</p>
             <Link to="/products" style={{ marginTop: 8, display: "inline-block" }}>
@@ -126,7 +126,7 @@ function Cart({ localCart = [], showToast, onUpdateItem, onRemoveItem, onClearCa
                 padding: "10px 14px", marginBottom: 18, fontSize: 13,
                 color: "var(--maroon)",
               }}>
-                🎁 25% discount applied automatically
+                25% discount applied automatically
               </div>
 
               <Link to="/checkout">
@@ -180,9 +180,9 @@ function CartItem({ item, onQuantityChange, onRemove, discounted }) {
         {image ? (
           <img src={image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>
-            🧵
-          </div>
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "var(--text-muted)" }}>
+              N/A
+            </div>
         )}
       </div>
 
@@ -258,7 +258,7 @@ function CartItem({ item, onQuantityChange, onRemove, discounted }) {
         onMouseEnter={e => e.currentTarget.style.background = "rgba(185,28,28,0.08)"}
         onMouseLeave={e => e.currentTarget.style.background = "none"}
       >
-        🗑
+        ✕
       </button>
     </div>
   );

@@ -72,7 +72,7 @@ function AdminLogin({ onAdminLogin, showToast }) {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 24, margin: "0 auto 16px",
           }}>
-            🔐
+            ✦
           </div>
           <h1 style={{
             fontFamily: "'Cormorant Garamond', serif",
@@ -93,7 +93,7 @@ function AdminLogin({ onAdminLogin, showToast }) {
               borderRadius: 8, padding: "10px 14px", marginBottom: 18,
               color: "#b91c1c", fontSize: 13,
             }}>
-              ⚠️ {error}
+              {error}
             </div>
           )}
 

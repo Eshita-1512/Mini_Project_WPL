@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import banner from "../assets/landing_main_banner.png";
+import banner from "../assets/login.jpeg";
 import festive from "../assets/festive.png";
 import wedding from "../assets/wedding.png";
 import special from "../assets/special.png";
@@ -16,26 +16,26 @@ import saree8 from "../assets/saree8.jpeg";
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const featured = [
-  { id: "1", name: "Ore Manjhi",      img: saree1, price: 11625, original: 15500 },
-  { id: "2", name: "Swarna Kamal",    img: saree2, price: 22500, original: 30000 },
-  { id: "3", name: "Sun Radhike",     img: saree3, price: 9800,  original: 13067 },
-  { id: "4", name: "Sun Ri Sajni",    img: saree4, price: 10500, original: 14000 },
-  { id: "5", name: "Hum Hai Taiyar",  img: saree5, price: 8700,  original: 11600 },
-  { id: "6", name: "Gaura",           img: saree6, price: 12000, original: 16000 },
-  { id: "7", name: "Ganga",           img: saree7, price: 13200, original: 17600 },
-  { id: "8", name: "Madhu Maas",      img: saree8, price: 9100,  original: 12133 },
+  { id: "1", name: "Ore Manjhi", img: saree1, price: 11625, original: 15500 },
+  { id: "2", name: "Swarna Kamal", img: saree2, price: 22500, original: 30000 },
+  { id: "3", name: "Sun Radhike", img: saree3, price: 9800, original: 13067 },
+  { id: "4", name: "Sun Ri Sajni", img: saree4, price: 10500, original: 14000 },
+  { id: "5", name: "Hum Hai Taiyar", img: saree5, price: 8700, original: 11600 },
+  { id: "6", name: "Gaura", img: saree6, price: 12000, original: 16000 },
+  { id: "7", name: "Ganga", img: saree7, price: 13200, original: 17600 },
+  { id: "8", name: "Madhu Maas", img: saree8, price: 9100, original: 12133 },
 ];
 
 const weaverSteps = [
   { icon: "🪡", step: "Loom", desc: "The ancient Banarasi pit-loom is set up by master craftsmen who have spent decades perfecting the tension." },
   { icon: "🧵", step: "Thread", desc: "Pure katan silk threads and real zari gold are handpicked for every single piece." },
   { icon: "✋", step: "Weave", desc: "Each saree is woven by hand — finger by finger — taking weeks or even months to complete." },
-  { icon: "🛍️", step: "You",   desc: "The finished saree travels from the artisan's home directly to your doorstep." },
+  { icon: "🛍️", step: "You", desc: "The finished saree travels from the artisan's home directly to your doorstep." },
 ];
 
 const collections = [
-  { img: festive, label: "Festive",  tag: "Navratri & Diwali picks" },
-  { img: wedding, label: "Bridal",   tag: "For your special day" },
+  { img: festive, label: "Festive", tag: "Navratri & Diwali picks" },
+  { img: wedding, label: "Bridal", tag: "For your special day" },
   { img: special, label: "Occasion", tag: "Everyday elegance" },
 ];
 
@@ -66,11 +66,11 @@ function Home({ addToCart, showToast }) {
         <img
           src={banner}
           alt="Gaura — Heritage Woven in Gold"
-          style={{ width: "100%", maxHeight: 580, objectFit: "cover", display: "block" }}
+          style={{ width: "100%", maxHeight: 620, objectFit: "cover", objectPosition: "center 20%", display: "block", filter: "brightness(0.85)" }}
         />
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(to right, rgba(128,0,32,0.68) 0%, rgba(128,0,32,0.05) 70%)",
+          background: "linear-gradient(to right, rgba(35,0,10,0.82) 0%, rgba(60,5,18,0.55) 45%, rgba(80,10,25,0.18) 75%, transparent 100%)",
           display: "flex", alignItems: "center", padding: "0 80px",
         }}>
           <div style={{ maxWidth: 480 }}>
@@ -191,7 +191,7 @@ function Home({ addToCart, showToast }) {
           {/* Connector line */}
           <div style={{
             position: "absolute", top: 50, left: "12.5%", right: "12.5%", height: 2,
-            background: "rgba(247,231,206,0.2)", zIndex: 0,
+            background: "#00000000", zIndex: 0,
             display: "grid", gridTemplateColumns: "repeat(3,1fr)",
           }} />
 
@@ -277,9 +277,9 @@ function Home({ addToCart, showToast }) {
       <section style={{ padding: "20px 60px 72px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
           {[
-            { icon: "🏆", title: "100% Satisfaction",   desc: "Authentic Banarasi sarees inspected for quality before dispatch." },
-            { icon: "💬", title: "24/7 Support",         desc: "Quick WhatsApp responses and dedicated customer support." },
-            { icon: "🔒", title: "Secure Payment",       desc: "End-to-end encrypted checkout with trusted payment gateways." },
+            { icon: "🏆", title: "100% Satisfaction", desc: "Authentic Banarasi sarees inspected for quality before dispatch." },
+            { icon: "💬", title: "24/7 Support", desc: "Quick WhatsApp responses and dedicated customer support." },
+            { icon: "🔒", title: "Secure Payment", desc: "End-to-end encrypted checkout with trusted payment gateways." },
           ].map(({ icon, title, desc }) => (
             <div key={title} style={{
               background: "white", padding: "28px 26px", borderRadius: 14,

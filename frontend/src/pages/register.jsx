@@ -51,7 +51,7 @@ function Register({ onLogin, showToast }) {
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);
-      if (showToast) showToast("Account created! Welcome to GAURA 🎉", "success");
+      if (showToast) showToast("Account created! Welcome to GAURA", "success");
       navigate("/");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
@@ -115,7 +115,7 @@ function Register({ onLogin, showToast }) {
                 borderRadius: 8, padding: "10px 14px", marginBottom: 18,
                 color: "#b91c1c", fontSize: 13,
               }}>
-                ⚠️ {error}
+                {error}
               </div>
             )}
 

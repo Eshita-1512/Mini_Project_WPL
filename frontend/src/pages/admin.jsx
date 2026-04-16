@@ -22,7 +22,7 @@ function AdminLayout({ user, showToast }) {
         minHeight: "60vh", display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", gap: 16, padding: 40,
       }}>
-        <div style={{ fontSize: 48 }}>🚫</div>
+        <div style={{ fontSize: 48, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)" }}>Restricted</div>
         <h2 style={{
           fontFamily: "'Cormorant Garamond', serif",
           fontSize: 28, color: "var(--maroon)",
@@ -79,10 +79,10 @@ function AdminLayout({ user, showToast }) {
 
           <div style={{ display: "flex", gap: 10 }}>
             <Link to="/admin/products" style={tab("products")}>
-              📦 Products
+              Products
             </Link>
             <Link to="/admin/orders" style={tab("orders")}>
-              🧾 Orders
+              Orders
             </Link>
             <Link to="/" style={{
               ...tab("__home__"),

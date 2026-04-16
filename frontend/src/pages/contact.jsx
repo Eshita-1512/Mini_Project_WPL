@@ -32,10 +32,10 @@ function Contact() {
         {/* ── Contact info ── */}
         <div style={{ flex: "0 0 320px" }}>
           {[
-            { icon: "📍", title: "Visit Us", details: ["GAURA Saree House,", "Banaras Weave Street,", "Mumbai – 400001, India"] },
-            { icon: "📞", title: "Call Us", details: ["+91 99999 99999", "Mon–Sat, 10am – 7pm"] },
-            { icon: "✉️", title: "Email Us", details: ["gaura@gmail.com", "We reply within 24 hours"] },
-            { icon: "💬", title: "WhatsApp", details: ["+91 99999 99999", "Quick responses guaranteed"] },
+            { icon: "○", title: "Visit Us", details: ["GAURA Saree House,", "Banaras Weave Street,", "Mumbai – 400001, India"] },
+            { icon: "○", title: "Call Us", details: ["+91 99999 99999", "Mon–Sat, 10am – 7pm"] },
+            { icon: "○", title: "Email Us", details: ["gaura@gmail.com", "We reply within 24 hours"] },
+            { icon: "○", title: "WhatsApp", details: ["+91 99999 99999", "Quick responses guaranteed"] },
           ].map(({ icon, title, details }) => (
             <div key={title} style={{
               background: "white", borderRadius: 12, padding: "20px",

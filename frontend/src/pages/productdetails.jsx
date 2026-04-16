@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import saree1 from "../assets/saree1.jpeg";
+import saree2 from "../assets/saree2.jpeg";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+// Local fallback data for at least the first 2 products
+const LOCAL_PRODUCT_DATA = {
+  "1": { image: saree1, price: 15500, name: "Ore Manjhi", description: "A timeless Banarasi silk saree with intricate gold zari work, handwoven on traditional pit-looms by master artisans.", category_name: "Silk Saree" },
+  "2": { image: saree2, price: 30000, name: "Swarna Kamal", description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari — the crown jewel of any trousseau.", category_name: "Bridal Saree" },
+};
 
 function ProductDetails({ addToCart, showToast }) {
   const { id } = useParams();
@@ -14,8 +22,27 @@ function ProductDetails({ addToCart, showToast }) {
     setLoading(true);
     fetch(`${API}/api/products/${id}`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then(data => setProduct(data))
-      .catch(() => setProduct(null))
+      .then(data => {
+        if (data) {
+          // Merge with local fallback for images/prices if missing
+          const fallback = LOCAL_PRODUCT_DATA[id];
+          if (fallback) {
+            if (!data.image_url && !data.image) data.image_url = fallback.image;
+            if (!data.price && fallback.price) data.price = fallback.price;
+            if (!data.description && fallback.description) data.description = fallback.description;
+            if (!data.category_name && fallback.category_name) data.category_name = fallback.category_name;
+          }
+          setProduct(data);
+        } else {
+          // API returned nothing — use local fallback if available
+          const fallback = LOCAL_PRODUCT_DATA[id];
+          setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+        }
+      })
+      .catch(() => {
+        const fallback = LOCAL_PRODUCT_DATA[id];
+        setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -50,7 +77,7 @@ function ProductDetails({ addToCart, showToast }) {
 
   if (!product) return (
     <div style={{ padding: "80px 60px", background: "var(--bg)", minHeight: "100vh", textAlign: "center" }}>
-      <div style={{ fontSize: 56, marginBottom: 16 }}>🧵</div>
+      <div style={{ fontSize: 56, marginBottom: 16, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)" }}>?</div>
       <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "var(--maroon)", marginBottom: 12 }}>
         Product Not Found
       </h2>
@@ -62,10 +89,11 @@ function ProductDetails({ addToCart, showToast }) {
     </div>
   );
 
-  const origPrice = product.price || 0;
+  const localFallback = LOCAL_PRODUCT_DATA[id] || {};
+  const origPrice = product.price || localFallback.price || 0;
   const discPrice = Math.round(origPrice * 0.75);
   const savings   = origPrice - discPrice;
-  const imageUrl  = product.image_url || product.image || "";
+  const imageUrl  = product.image_url || product.image || localFallback.image || "";
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100vh", paddingBottom: 80 }}>
@@ -100,8 +128,9 @@ function ProductDetails({ addToCart, showToast }) {
             ) : (
               <div style={{
                 width: "100%", height: "100%",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 72,
-              }}>🧵</div>
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 36, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)",
+              }}>No Image</div>
             )}
             <span className="badge badge-sale" style={{ position: "absolute", top: 16, left: 16 }}>
               25% OFF
@@ -170,10 +199,10 @@ function ProductDetails({ addToCart, showToast }) {
           {/* Features */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
             {[
-              "✋ Handwoven by master artisans in Banaras",
-              "🧵 Pure Katan Silk with Zari work",
-              "📦 Ships within 3–5 business days",
-              "↩️ 7-day hassle-free returns",
+              "Handwoven by master artisans in Banaras",
+              "Pure Katan Silk with Zari work",
+              "Ships within 3–5 business days",
+              "7-day hassle-free returns",
             ].map(f => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{f}</span>
@@ -226,7 +255,7 @@ function ProductDetails({ addToCart, showToast }) {
                 transition: "background 0.3s",
               }}
             >
-              {added ? "✓ Added to Cart!" : "Add to Cart"}
+              {added ? "Added to Cart!" : "Add to Cart"}
             </button>
           </div>
 

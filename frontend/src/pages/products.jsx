@@ -227,7 +227,7 @@ function Products({ addToCart, showToast }) {
             background: "var(--maroon)", color: "#F7E7CE",
             borderRadius: 12, padding: "18px 16px", marginTop: 4,
           }}>
-            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>🎁 25% Off All Orders</p>
+            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>25% Off All Orders</p>
             <p style={{ fontSize: 12, opacity: 0.8, lineHeight: 1.6 }}>
               Discount is applied automatically at checkout.
             </p>
@@ -240,7 +240,7 @@ function Products({ addToCart, showToast }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
               {Array(6).fill(0).map((_, i) => (
                 <div key={i}>
-                  <div className="skeleton" style={{ height: 260, borderRadius: 12, marginBottom: 12 }} />
+                  <div className="skeleton" style={{ height: 340, borderRadius: 12, marginBottom: 12 }} />
                   <div className="skeleton" style={{ height: 18, width: "70%", marginBottom: 8 }} />
                   <div className="skeleton" style={{ height: 14, width: "40%" }} />
                 </div>
@@ -248,7 +248,7 @@ function Products({ addToCart, showToast }) {
             </div>
           ) : displayed.length === 0 ? (
             <div className="empty-state">
-              <div style={{ fontSize: 48, marginBottom: 16 }}>🧵</div>
+              <div style={{ fontSize: 28, marginBottom: 16, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)" }}>No Results</div>
               <h3>No products found</h3>
               <p>{searchQ ? `No results for "${searchQ}"` : "Try a different category or filter."}</p>
               <button
@@ -337,7 +337,7 @@ function ProductCard({ product, onAddToCart }) {
       }}
     >
       {/* Image */}
-      <div style={{ position: "relative", overflow: "hidden", height: 260, background: "var(--champagne)" }}>
+      <div style={{ position: "relative", overflow: "hidden", height: 340, background: "var(--champagne)" }}>
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -347,12 +347,13 @@ function ProductCard({ product, onAddToCart }) {
             onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
           />
         ) : (
-          <div style={{
-            width: "100%", height: "100%",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48,
-          }}>
-            🧵
-          </div>
+            <div style={{
+              width: "100%", height: "100%",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 16, color: "var(--text-muted)",
+            }}>
+              No Image
+            </div>
         )}
         <span className="badge badge-sale" style={{ position: "absolute", top: 10, left: 10 }}>
           25% OFF

@@ -6,7 +6,7 @@ const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 function getShipping(pincode) {
   if (!pincode) return null;
   if (pincode.length !== 6) return { charge: 999, label: "International Shipping", color: "#b91c1c" };
-  if (pincode.startsWith("400")) return { charge: 0, label: "🚀 Free Mumbai Delivery", color: "#1a6b3c" };
+  if (pincode.startsWith("400")) return { charge: 0, label: "Free Mumbai Delivery", color: "#1a6b3c" };
   return { charge: 199, label: "Standard India Delivery", color: "var(--royal-blue)" };
 }
 
@@ -126,7 +126,7 @@ function Checkout({ showToast, localCart = [] }) {
                 display: "flex", alignItems: "center", gap: 10,
               }}>
                 <span style={{ fontSize: 18 }}>
-                  {shipping?.charge === 0 ? "🚀" : shipping?.charge === 999 ? "✈️" : "📦"}
+                  {shipping?.charge === 0 ? "✓" : shipping?.charge === 999 ? "→" : "‣"}
                 </span>
                 <div>
                   <p style={{ fontWeight: 600, fontSize: 14, color: shipping?.color }}>
@@ -167,7 +167,7 @@ function Checkout({ showToast, localCart = [] }) {
                           <img src={item.image_url || item.image} alt={item.name} style={{
                             width: "100%", height: "100%", objectFit: "cover",
                           }} />
-                        ) : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: 20 }}>🧵</div>}
+                        ) : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: 12, color: "var(--text-muted)" }}>N/A</div>}
                       </div>
                       <div>
                         <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
@@ -212,7 +212,7 @@ function Checkout({ showToast, localCart = [] }) {
             <PriceRow label="Discount (25%)" value={`−₹${(cartItems.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0) - subtotal).toLocaleString()}`} green />
             <PriceRow label="Shipping" value={
               !shipping ? "Enter pincode"
-              : shipping.charge === 0 ? "FREE 🎉"
+              : shipping.charge === 0 ? "FREE"
               : `₹${shipping.charge}`
             } />
             <div style={{ height: 1, background: "var(--border)" }} />
@@ -224,7 +224,7 @@ function Checkout({ showToast, localCart = [] }) {
             padding: "10px 14px", marginBottom: 18, fontSize: 13,
             color: "var(--maroon)", fontWeight: 500,
           }}>
-            🏷 You save ₹{(cartItems.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0) - subtotal).toLocaleString()} on this order
+            You save ₹{(cartItems.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0) - subtotal).toLocaleString()} on this order
           </div>
 
           <button
@@ -242,7 +242,7 @@ function Checkout({ showToast, localCart = [] }) {
           </button>
 
           <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12, lineHeight: 1.6 }}>
-            🔒 Secure & encrypted checkout. No account required.
+            Secure & encrypted checkout. No account required.
           </p>
         </div>
       </div>

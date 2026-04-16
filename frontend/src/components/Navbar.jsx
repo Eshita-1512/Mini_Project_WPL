@@ -4,10 +4,10 @@ import logo from "../assets/logo.jpeg";
 
 function Navbar({ cartCount = 0, user, onLogout }) {
   const [scrolled, setScrolled] = useState(false);
-  const [search, setSearch]     = useState("");
-  const navigate    = useNavigate();
-  const location    = useLocation();
-  const searchRef   = useRef(null);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -21,9 +21,9 @@ function Navbar({ cartCount = 0, user, onLogout }) {
   };
 
   const links = [
-    { to: "/",        label: "Home" },
+    { to: "/", label: "Home" },
     { to: "/products", label: "Products" },
-    { to: "/cart",    label: "Cart" },
+    { to: "/cart", label: "Cart" },
     { to: "/contact", label: "Contact" },
   ];
 
@@ -38,7 +38,7 @@ function Navbar({ cartCount = 0, user, onLogout }) {
         textAlign: "center", padding: "7px 16px", fontSize: "12.5px",
         letterSpacing: "0.6px", fontWeight: 500,
       }}>
-        🎁 25% Off Sitewide &nbsp;|&nbsp; 🚚 Free Shipping in Mumbai &nbsp;|&nbsp; ✨ Handwoven in Banaras
+        25% Off Sitewide &nbsp;|&nbsp;  Free Shipping in Mumbai &nbsp;|&nbsp;  Handwoven in Banaras
       </div>
 
       {/* ── Main navbar ── */}
@@ -103,7 +103,7 @@ function Navbar({ cartCount = 0, user, onLogout }) {
                 placeholder="Search sarees..."
                 style={{
                   background: "rgba(255,255,255,0.12)",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(138, 16, 16, 0.32)",
                   borderRadius: 20, padding: "6px 14px 6px 32px",
                   color: "white", fontSize: 13, outline: "none", width: 160,
                   transition: "width 0.3s",

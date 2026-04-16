@@ -18,10 +18,10 @@ function Footer() {
         borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}>
         {[
-          { icon: "✅", text: "100% Authentic Handwoven" },
-          { icon: "🚚", text: "Free Shipping in Mumbai" },
-          { icon: "↩️", text: "Easy 7-Day Returns" },
-          { icon: "🔒", text: "Secure Payments" },
+          { icon: "✦", text: "100% Authentic Handwoven" },
+          { icon: "➜", text: "Free Shipping in Mumbai" },
+          { icon: "↩", text: "Easy 7-Day Returns" },
+          { icon: "✧", text: "Secure Payments" },
         ].map(({ icon, text }) => (
           <div key={text} style={{
             display: "flex", alignItems: "center", gap: 8,
@@ -51,9 +51,9 @@ function Footer() {
           {/* Social icons */}
           <div style={{ display: "flex", gap: 12 }}>
             {[
-              { href: "https://instagram.com", label: "Instagram", icon: "📸" },
-              { href: "https://wa.me/919999999999", label: "WhatsApp", icon: "💬" },
-              { href: "mailto:gaura@gmail.com", label: "Email", icon: "📧" },
+              { href: "https://instagram.com", label: "Instagram", icon: "IG" },
+              { href: "https://wa.me/919999999999", label: "WhatsApp", icon: "WA" },
+              { href: "mailto:gaura@gmail.com", label: "Email", icon: "@" },
             ].map(({ href, label, icon }) => (
               <a key={label} href={href} target="_blank" rel="noreferrer"
                 title={label}
@@ -103,10 +103,10 @@ function Footer() {
         <div>
           <FooterHeading>Stay Connected</FooterHeading>
           <div style={{ marginBottom: 20 }}>
-            <p style={footerTextStyle}>📍 Mumbai, Maharashtra, India</p>
-            <p style={footerTextStyle}>📞 +91 99999 99999</p>
+            <p style={footerTextStyle}>Mumbai, Maharashtra, India</p>
+            <p style={footerTextStyle}>+91 99999 99999</p>
             <a href="mailto:gaura@gmail.com" style={{ ...footerTextStyle, display: "block" }}>
-              ✉️ gaura@gmail.com
+              gaura@gmail.com
             </a>
           </div>
           <p style={{ fontSize: 12, color: "rgba(247,231,206,0.6)", marginBottom: 10, fontWeight: 500, letterSpacing: "0.5px", textTransform: "uppercase" }}>
@@ -147,7 +147,7 @@ function Footer() {
         flexWrap: "wrap", gap: 10,
       }}>
         <p style={{ fontSize: 12, color: "rgba(247,231,206,0.5)" }}>
-          © {year} Gaura. All rights reserved. Handcrafted in Banaras 🧵
+          © {year} Gaura. All rights reserved. Handcrafted in Banaras.
         </p>
         <div style={{ display: "flex", gap: 20 }}>
           {["Privacy Policy", "Terms of Service"].map(t => (

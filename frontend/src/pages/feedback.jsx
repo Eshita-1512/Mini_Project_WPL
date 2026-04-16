@@ -62,7 +62,7 @@ function Feedback({ showToast }) {
       return;
     }
     console.log("Feedback Submitted:", form);
-    if (showToast) showToast("Thank you for your feedback! ❤️", "success");
+    if (showToast) showToast("Thank you for your feedback!", "success");
     setSubmitted(true);
   };
 
@@ -101,7 +101,7 @@ function Feedback({ showToast }) {
             padding: "56px 40px", textAlign: "center",
             boxShadow: "var(--shadow-md)", border: "1px solid var(--border)",
           }}>
-            <div style={{ fontSize: 60, marginBottom: 20 }}>🙏</div>
+            <div style={{ fontSize: 44, marginBottom: 20, fontFamily: "'Cormorant Garamond', serif", color: "var(--maroon)" }}>Thank You</div>
             <h2 style={{
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 34, color: "var(--maroon)", marginBottom: 12,
@@ -194,7 +194,7 @@ function Feedback({ showToast }) {
                 lineHeight: 1.7,
                 border: "1px solid rgba(128,0,32,0.08)",
               }}>
-                💡 <strong style={{ color: "var(--maroon)" }}>Tip:</strong> Mention which saree you bought, the occasion you wore it for, and what you loved most. Honest reviews help other shoppers!
+                <strong style={{ color: "var(--maroon)" }}>Tip:</strong> Mention which saree you bought, the occasion you wore it for, and what you loved most. Honest reviews help other shoppers!
               </div>
 
               <button
@@ -222,8 +222,8 @@ function Feedback({ showToast }) {
           gap: 16, marginTop: 24,
         }}>
           {[
-            { icon: "🏆", title: "Honest Reviews", desc: "All reviews are from verified GAURA customers." },
-            { icon: "🔒", title: "Private & Safe", desc: "Your details are never shared publicly." },
+            { icon: "✦", title: "Honest Reviews", desc: "All reviews are from verified GAURA customers." },
+            { icon: "✧", title: "Private & Safe", desc: "Your details are never shared publicly." },
           ].map(({ icon, title, desc }) => (
             <div key={title} style={{
               background: "white", borderRadius: 12, padding: "18px 20px",
