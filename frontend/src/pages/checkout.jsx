@@ -53,6 +53,7 @@ function Checkout({ showToast, localCart = [] }) {
     }
     setPlacing(true);
     try {
+      // Step 1: Create order on backend (gets Razorpay order)
       const payload = {
         name, email, phone, address, city, pincode,
         cart: cartItems.map(item => ({
@@ -60,7 +61,7 @@ function Checkout({ showToast, localCart = [] }) {
           quantity: item.quantity || 1,
         })),
       };
-      const res = await fetch(`${API}/api/orders/`, {
+      const res = await fetch(`${API}/api/orders/create`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -68,11 +69,65 @@ function Checkout({ showToast, localCart = [] }) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Order failed");
+        throw new Error(err.detail || err.message || "Order creation failed");
       }
       const data = await res.json();
-      const orderId = data.orderId || data.id || data.order_id;
-      navigate(`/order-summary/${orderId}`);
+      const { razorpayOrderId, amount, currency } = data.order || {};
+      const orderId = data.order?.orderId;
+
+      if (!razorpayOrderId) {
+        throw new Error("Failed to create payment order");
+      }
+
+      // Step 2: Open Razorpay checkout popup
+      const options = {
+        key: "rzp_test_SeDrZaE620CqJJ",
+        amount: amount,
+        currency: currency || "INR",
+        name: "Gaura",
+        description: "Saree Order Payment",
+        order_id: razorpayOrderId,
+        handler: async function (response) {
+          // Step 3: Verify payment on backend
+          try {
+            const verifyRes = await fetch(`${API}/api/orders/verify`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+            if (!verifyRes.ok) {
+              throw new Error("Payment verification failed");
+            }
+            if (showToast) showToast("Payment successful! 🎉", "success");
+            navigate(`/order-summary/${orderId}`);
+          } catch (verifyErr) {
+            if (showToast) showToast(verifyErr.message || "Payment verification failed", "error");
+          }
+        },
+        prefill: {
+          name: name,
+          email: email,
+          contact: phone,
+        },
+        theme: {
+          color: "#800020",
+        },
+        modal: {
+          ondismiss: function () {
+            setPlacing(false);
+            if (showToast) showToast("Payment cancelled", "error");
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+      return; // Don't set placing=false here, Razorpay popup handles it
     } catch (err) {
       if (showToast) showToast(err.message || "Failed to place order", "error");
     } finally {
