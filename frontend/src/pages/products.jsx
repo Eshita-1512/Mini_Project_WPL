@@ -10,6 +10,24 @@ import saree5 from "../assets/saree5.jpeg";
 import saree6 from "../assets/saree6.jpeg";
 import saree7 from "../assets/saree7.jpeg";
 import saree8 from "../assets/saree8.jpeg";
+import saree9 from "../assets/saree9.jpeg";
+import saree10 from "../assets/saree10.jpeg";
+import saree11 from "../assets/saree11.jpeg";
+import saree12 from "../assets/saree12.jpeg";
+import saree13 from "../assets/saree13.jpeg";
+
+// ── Map product IDs → local images (DB has no image column) ──────────────────
+const IMAGE_MAP = {
+  1: saree1,  2: saree2,  3: saree3,  4: saree4,
+  5: saree5,  6: saree6,  7: saree7,  8: saree8,
+  9: saree9,  10: saree10, 11: saree11, 12: saree12,
+  13: saree13,
+  // Products 14-26 are duplicates of 1-13, so reuse images
+  14: saree1,  15: saree2,  16: saree3,  17: saree4,
+  18: saree5,  19: saree6,  20: saree7,  21: saree8,
+  22: saree9,  23: saree10, 24: saree11, 25: saree12,
+  26: saree13,
+};
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -73,13 +91,17 @@ function Products({ addToCart, showToast }) {
       // API returns { success, products: [...] } — extract the array
       const rawProducts = pData?.products || (Array.isArray(pData) ? pData : []);
 
-      // Map backend field names → frontend field names
+      // Map backend field names → frontend field names + attach local images
       const productList = rawProducts.length > 0
-        ? rawProducts.map(p => ({
-            ...p,
-            id: p.product_id || p.id,
-            price: p.original_price || p.price || 0,
-          }))
+        ? rawProducts.map(p => {
+            const pid = p.product_id || p.id;
+            return {
+              ...p,
+              id: pid,
+              price: p.original_price || p.price || 0,
+              image_url: IMAGE_MAP[pid] || p.image_url || "",
+            };
+          })
         : FALLBACK_PRODUCTS;
       setProducts(productList);
 

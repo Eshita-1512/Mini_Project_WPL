@@ -2,13 +2,30 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import saree1 from "../assets/saree1.jpeg";
 import saree2 from "../assets/saree2.jpeg";
+import saree3 from "../assets/saree3.jpeg";
+import saree4 from "../assets/saree4.jpeg";
+import saree5 from "../assets/saree5.jpeg";
+import saree6 from "../assets/saree6.jpeg";
+import saree7 from "../assets/saree7.jpeg";
+import saree8 from "../assets/saree8.jpeg";
+import saree9 from "../assets/saree9.jpeg";
+import saree10 from "../assets/saree10.jpeg";
+import saree11 from "../assets/saree11.jpeg";
+import saree12 from "../assets/saree12.jpeg";
+import saree13 from "../assets/saree13.jpeg";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-// Local fallback data for at least the first 2 products
-const LOCAL_PRODUCT_DATA = {
-  "1": { image: saree1, price: 15500, name: "Ore Manjhi", description: "A timeless Banarasi silk saree with intricate gold zari work, handwoven on traditional pit-looms by master artisans.", category_name: "Silk Saree" },
-  "2": { image: saree2, price: 30000, name: "Swarna Kamal", description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari — the crown jewel of any trousseau.", category_name: "Bridal Saree" },
+// Map product IDs → local images (DB has no image column)
+const IMAGE_MAP = {
+  1: saree1,  2: saree2,  3: saree3,  4: saree4,
+  5: saree5,  6: saree6,  7: saree7,  8: saree8,
+  9: saree9,  10: saree10, 11: saree11, 12: saree12,
+  13: saree13,
+  14: saree1,  15: saree2,  16: saree3,  17: saree4,
+  18: saree5,  19: saree6,  20: saree7,  21: saree8,
+  22: saree9,  23: saree10, 24: saree11, 25: saree12,
+  26: saree13,
 };
 
 function ProductDetails({ addToCart, showToast }) {
@@ -28,24 +45,20 @@ function ProductDetails({ addToCart, showToast }) {
         if (data) {
           // Map backend field names → frontend field names
           if (data.original_price) data.price = data.original_price;
-          if (data.product_id) data.id = data.product_id;
-          // Merge with local fallback for images if missing
-          const fallback = LOCAL_PRODUCT_DATA[id];
-          if (fallback) {
-            if (!data.image_url && !data.image) data.image_url = fallback.image;
-            if (!data.description && fallback.description) data.description = fallback.description;
-            if (!data.category_name && fallback.category_name) data.category_name = fallback.category_name;
-          }
+          const pid = data.product_id || data.id || id;
+          data.id = pid;
+          // Always attach local image
+          data.image_url = IMAGE_MAP[pid] || data.image_url || "";
           setProduct(data);
         } else {
-          // API returned nothing — use local fallback if available
-          const fallback = LOCAL_PRODUCT_DATA[id];
-          setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+          // API returned nothing — show image-only placeholder if we have the image
+          const img = IMAGE_MAP[id];
+          setProduct(img ? { id, name: "Product " + id, price: 0, image_url: img } : null);
         }
       })
       .catch(() => {
-        const fallback = LOCAL_PRODUCT_DATA[id];
-        setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+        const img = IMAGE_MAP[id];
+        setProduct(img ? { id, name: "Product " + id, price: 0, image_url: img } : null);
       })
       .finally(() => setLoading(false));
   }, [id]);
