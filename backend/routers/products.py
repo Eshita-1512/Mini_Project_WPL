@@ -48,7 +48,8 @@ def get_all_products(
     products = []
     for row in rows:
         product = dict(row)
-        product["discounted_price"] = round(float(product["original_price"]) * 0.75, 2)
+        original_price = product.get("original_price") or 0
+        product["discounted_price"] = round(float(original_price) * 0.75, 2)
         products.append(product)
 
     return {"success": True, "count": len(products), "products": products}
@@ -72,6 +73,7 @@ def get_product_by_id(product_id: int, cur=Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
         
     product = dict(product)
-    product["discounted_price"] = round(float(product["original_price"]) * 0.75, 2)
+    original_price = product.get("original_price") or 0
+    product["discounted_price"] = round(float(original_price) * 0.75, 2)
 
     return {"success": True, "product": product}
