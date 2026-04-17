@@ -49,6 +49,7 @@ app = FastAPI(
     description="Saree e-commerce backend powered by FastAPI",
     version="1.0.0",
     lifespan=lifespan,
+    redirect_slashes=False,  # Prevents 307 redirects that strip auth cookies
 )
 
 # Middleware 
