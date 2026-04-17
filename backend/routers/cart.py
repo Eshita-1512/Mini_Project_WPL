@@ -7,7 +7,7 @@ router = APIRouter(prefix="/api/cart", tags=["Cart"])
 
 
 # GET /api/cart 
-@router.get("/")
+@router.get("")
 def get_cart(request: Request, cur=Depends(get_db)):
     cart = request.session.get("cart", [])
 
@@ -29,11 +29,11 @@ def get_cart(request: Request, cur=Depends(get_db)):
         if not product:
             continue
 
-        discounted_price = round(float(product["original_price"]) * 0.75, 2)
+        discounted_price = round(float(product["original_price"] or 0) * 0.75, 2)
         cart_details.append({
             "productId": item["productId"],
             "name": product["name"],
-            "original_price": float(product["original_price"]),
+            "original_price": float(product["original_price"] or 0),
             "discounted_price": discounted_price,
             "quantity": item["quantity"],
             "subtotal": round(discounted_price * item["quantity"], 2),
@@ -45,7 +45,7 @@ def get_cart(request: Request, cur=Depends(get_db)):
 
 
 # POST /api/cart 
-@router.post("/")
+@router.post("")
 def add_to_cart(request: Request, body: CartItemRequest):
     if body.quantity < 1:
         raise HTTPException(status_code=400, detail="productId and quantity (>=1) are required")
@@ -101,7 +101,7 @@ def remove_cart_item(request: Request, product_id: int):
 
 
 # DELETE /api/cart 
-@router.delete("/")
+@router.delete("")
 def clear_cart(request: Request):
     request.session["cart"] = []
     return {"success": True, "message": "Cart cleared"}

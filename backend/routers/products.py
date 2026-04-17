@@ -15,7 +15,7 @@ def get_categories(cur=Depends(get_db)):
 
 
 # GET /api/products — Get all products (supports ?sort= and ?search=)
-@router.get("/")
+@router.get("")
 def get_all_products(
     sort: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
