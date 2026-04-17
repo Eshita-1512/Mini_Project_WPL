@@ -114,6 +114,26 @@ function Checkout({ showToast, localCart = [] }) {
           email: email,
           contact: phone,
         },
+        method: {
+          upi: true,
+          card: true,
+          netbanking: true,
+          wallet: true,
+        },
+        config: {
+          display: {
+            blocks: {
+              upi: {
+                name: "Pay via UPI",
+                instruments: [
+                  { method: "upi", flows: ["qr", "collect", "intent"] },
+                ],
+              },
+            },
+            sequence: ["block.upi", "block.recommended"],
+            preferences: { show_default_blocks: true },
+          },
+        },
         theme: {
           color: "#800020",
         },
