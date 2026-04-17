@@ -57,9 +57,9 @@ app = FastAPI(
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY", "gaura_secret_key"),
-    max_age=60 * 60 * 24,          
-    same_site="lax",
-    https_only=False,            
+    max_age=60 * 60 * 24,
+    same_site="none",   # Required for cross-origin (Vercel → Render)
+    https_only=True,    # Required when same_site="none"
 )
 
 # CORS
