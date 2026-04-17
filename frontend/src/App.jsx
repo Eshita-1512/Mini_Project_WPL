@@ -75,10 +75,11 @@ function App() {
         const res = await fetch(`${API}/api/cart`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
+          const backendCart = data.cart || (Array.isArray(data) ? data : []);
+          if (backendCart.length > 0) {
             // Backend has items → use backend as source of truth
-            setLocalCart(data);
-            saveLocalCart(data);
+            setLocalCart(backendCart);
+            saveLocalCart(backendCart);
           }
         }
       } catch {

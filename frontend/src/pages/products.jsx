@@ -112,13 +112,13 @@ function Products({ addToCart, showToast }) {
       } else {
         // Derive categories from fallback products
         const cats = [...new Set(productList.map(p => p.category_name).filter(Boolean))];
-        setCategories(cats.map(c => ({ name: c })));
+        setCategories(cats.map(c => ({ category_name: c })));
       }
     } catch {
       // API completely unreachable — use fallback
       setProducts(FALLBACK_PRODUCTS);
       const cats = [...new Set(FALLBACK_PRODUCTS.map(p => p.category_name))];
-      setCategories(cats.map(c => ({ name: c })));
+      setCategories(cats.map(c => ({ category_name: c })));
     } finally {
       setLoading(false);
     }
@@ -183,7 +183,8 @@ function Products({ addToCart, showToast }) {
             <ul style={{ listStyle: "none" }}>
               <SideItem label="All" active={activeCat === "all"} onClick={() => setActiveCat("all")} />
               {categories.map(c => {
-                const name = typeof c === "string" ? c : (c.name || c);
+                const name = typeof c === "string" ? c : (c.category_name || c.name || "");
+                if (!name) return null;
                 return (
                   <SideItem
                     key={name}
