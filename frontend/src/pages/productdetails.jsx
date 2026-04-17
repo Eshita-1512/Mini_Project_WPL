@@ -22,13 +22,17 @@ function ProductDetails({ addToCart, showToast }) {
     setLoading(true);
     fetch(`${API}/api/products/${id}`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then(data => {
+      .then(rawData => {
+        // API returns { success, product: {...} } — extract the product object
+        const data = rawData?.product || rawData;
         if (data) {
-          // Merge with local fallback for images/prices if missing
+          // Map backend field names → frontend field names
+          if (data.original_price) data.price = data.original_price;
+          if (data.product_id) data.id = data.product_id;
+          // Merge with local fallback for images if missing
           const fallback = LOCAL_PRODUCT_DATA[id];
           if (fallback) {
             if (!data.image_url && !data.image) data.image_url = fallback.image;
-            if (!data.price && fallback.price) data.price = fallback.price;
             if (!data.description && fallback.description) data.description = fallback.description;
             if (!data.category_name && fallback.category_name) data.category_name = fallback.category_name;
           }

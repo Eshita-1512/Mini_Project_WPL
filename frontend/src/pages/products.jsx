@@ -67,14 +67,26 @@ function Products({ addToCart, showToast }) {
         fetch(`${API}/api/products/categories`, { credentials: "include" }),
       ]);
 
-      const pData = pRes.ok ? await pRes.json() : [];
-      const cData = cRes.ok ? await cRes.json() : [];
+      const pData = pRes.ok ? await pRes.json() : null;
+      const cData = cRes.ok ? await cRes.json() : null;
 
-      const productList = Array.isArray(pData) && pData.length > 0 ? pData : FALLBACK_PRODUCTS;
+      // API returns { success, products: [...] } — extract the array
+      const rawProducts = pData?.products || (Array.isArray(pData) ? pData : []);
+
+      // Map backend field names → frontend field names
+      const productList = rawProducts.length > 0
+        ? rawProducts.map(p => ({
+            ...p,
+            id: p.product_id || p.id,
+            price: p.original_price || p.price || 0,
+          }))
+        : FALLBACK_PRODUCTS;
       setProducts(productList);
 
-      if (Array.isArray(cData) && cData.length > 0) {
-        setCategories(cData);
+      // API returns { success, categories: [...] }
+      const rawCats = cData?.categories || (Array.isArray(cData) ? cData : []);
+      if (rawCats.length > 0) {
+        setCategories(rawCats);
       } else {
         // Derive categories from fallback products
         const cats = [...new Set(productList.map(p => p.category_name).filter(Boolean))];
