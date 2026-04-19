@@ -1,41 +1,48 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-// ── Saree images (local assets — always available) ───────────────────────────
-import saree13 from "../assets/saree6.jpeg";
-import saree12 from "../assets/saree4.jpeg";
-import saree11 from "../assets/saree11.jpeg";
-import saree10 from "../assets/saree9.jpeg";
-import saree9 from "../assets/saree1.jpeg";
-import saree8 from "../assets/saree3.jpeg";
-import saree7 from "../assets/saree7.jpeg";
-import saree6 from "../assets/saree10.jpeg";
-import saree5 from "../assets/saree5.jpeg";
-import saree4 from "../assets/saree11.jpeg";
-import saree3 from "../assets/saree12.jpeg";
-import saree2 from "../assets/saree2.jpeg";
-import saree1 from "../assets/saree13.jpeg";
+// ── Saree images (local assets) ──────────────────────────────────────────────
+import img_saree1 from "../assets/saree1.jpeg";
+import img_saree2 from "../assets/saree2.jpeg";
+import img_saree3 from "../assets/saree3.jpeg";
+import img_saree4 from "../assets/saree4.jpeg";
+import img_saree5 from "../assets/saree5.jpeg";
+import img_saree6 from "../assets/saree6.jpeg";
+import img_saree7 from "../assets/saree7.jpeg";
+import img_saree8 from "../assets/saree8.jpeg";
+import img_saree9 from "../assets/saree9.jpeg";
+import img_saree10 from "../assets/saree10.jpeg";
+import img_saree11 from "../assets/saree11.jpeg";
+import img_saree12 from "../assets/saree12.jpeg";
+import img_saree13 from "../assets/saree13.jpeg";
 
-// ── Map product IDs → local images (DB has no image column) ──────────────────
-const IMAGE_MAP = {
-  1: saree1,  2: saree2,  3: saree3,  4: saree4,
-  5: saree5,  6: saree6,  7: saree7,  8: saree8,
-  9: saree9,  10: saree10, 11: saree11, 12: saree12,
-  13: saree13,
+// ── Map DB filename → local bundled asset ────────────────────────────────────
+const FILENAME_MAP = {
+  "saree1.jpeg": img_saree1,   "saree2.jpeg": img_saree2,
+  "saree3.jpeg": img_saree3,   "saree4.jpeg": img_saree4,
+  "saree5.jpeg": img_saree5,   "saree6.jpeg": img_saree6,
+  "saree7.jpeg": img_saree7,   "saree8.jpeg": img_saree8,
+  "saree9.jpeg": img_saree9,   "saree10.jpeg": img_saree10,
+  "saree11.jpeg": img_saree11, "saree12.jpeg": img_saree12,
+  "saree13.jpeg": img_saree13,
 };
+function resolveImage(imageUrl) {
+  if (!imageUrl) return "";
+  return FILENAME_MAP[imageUrl] || imageUrl;
+}
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // ── Static fallback — shown when backend is unavailable ──────────────────────
 const FALLBACK_PRODUCTS = [
-  { id: "1", name: "Ore Manjhi",      price: 15500, image_url: saree1, category_name: "Silk Saree",     description: "A timeless Banarasi silk saree with intricate gold zari work." },
-  { id: "2", name: "Swarna Kamal",    price: 30000, image_url: saree2, category_name: "Bridal Saree",   description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari." },
-  { id: "3", name: "Sun Radhike",     price: 13067, image_url: saree3, category_name: "Festive Saree",  description: "Vibrant festive saree ideal for Diwali and Navratri celebrations." },
-  { id: "4", name: "Sun Ri Sajni",    price: 14000, image_url: saree4, category_name: "Silk Saree",     description: "Soft katan silk with subtle thread work — perfect for everyday elegance." },
-  { id: "5", name: "Hum Hai Taiyar", price: 11600, image_url: saree5, category_name: "Festive Saree",  description: "Bold colours and fine weaving make this a festival-season favourite." },
-  { id: "6", name: "Gaura",           price: 16000, image_url: saree6, category_name: "Bridal Saree",   description: "Our signature piece — named after the brand itself. A masterwork of art." },
-  { id: "7", name: "Ganga",           price: 17600, image_url: saree7, category_name: "Silk Saree",     description: "Flowing like the river — pure silk with a naturally luminous finish." },
-  { id: "8", name: "Madhu Maas",      price: 12133, image_url: saree8, category_name: "Occasion Saree", description: "Delicate motifs inspired by the honey season — sweet and sophisticated." },
+  { id: "1", name: "Ore Manjhi",      price: 15500, image_url: img_saree1, category_name: "Silk Saree",     description: "A timeless Banarasi silk saree with intricate gold zari work." },
+  { id: "2", name: "Swarna Kamal",    price: 30000, image_url: img_saree2, category_name: "Bridal Saree",   description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari." },
+  { id: "3", name: "Sun Radhike",     price: 13067, image_url: img_saree3, category_name: "Festive Saree",  description: "Vibrant festive saree ideal for Diwali and Navratri celebrations." },
+  { id: "4", name: "Sun Ri Sajni",    price: 14000, image_url: img_saree4, category_name: "Silk Saree",     description: "Soft katan silk with subtle thread work — perfect for everyday elegance." },
+  { id: "5", name: "Hum Hai Taiyar", price: 11600, image_url: img_saree5, category_name: "Festive Saree",  description: "Bold colours and fine weaving make this a festival-season favourite." },
+  { id: "6", name: "Gaura",           price: 16000, image_url: img_saree6, category_name: "Bridal Saree",   description: "Our signature piece — named after the brand itself. A masterwork of art." },
+  { id: "7", name: "Ganga",           price: 17600, image_url: img_saree7, category_name: "Silk Saree",     description: "Flowing like the river — pure silk with a naturally luminous finish." },
+  { id: "8", name: "Madhu Maas",      price: 12133, image_url: img_saree8, category_name: "Occasion Saree", description: "Delicate motifs inspired by the honey season — sweet and sophisticated." },
 ];
 
 // ── Color swatches (UI only) ──────────────────────────────────────────────────
@@ -94,7 +101,7 @@ function Products({ addToCart, showToast }) {
               ...p,
               id: pid,
               price: p.original_price || p.price || 0,
-              image_url: IMAGE_MAP[pid] || p.image_url || "",
+              image_url: resolveImage(p.image_url) || "",
             };
           })
         : FALLBACK_PRODUCTS;

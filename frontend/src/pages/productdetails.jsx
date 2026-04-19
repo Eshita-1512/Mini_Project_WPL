@@ -1,28 +1,35 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import saree13 from "../assets/saree6.jpeg";
-import saree12 from "../assets/saree4.jpeg";
-import saree11 from "../assets/saree11.jpeg";
-import saree10 from "../assets/saree9.jpeg";
-import saree9 from "../assets/saree1.jpeg";
-import saree8 from "../assets/saree3.jpeg";
-import saree7 from "../assets/saree7.jpeg";
-import saree6 from "../assets/saree10.jpeg";
-import saree5 from "../assets/saree5.jpeg";
-import saree4 from "../assets/saree11.jpeg";
-import saree3 from "../assets/saree12.jpeg";
-import saree2 from "../assets/saree2.jpeg";
-import saree1 from "../assets/saree13.jpeg";
+import img_saree1 from "../assets/saree1.jpeg";
+import img_saree2 from "../assets/saree2.jpeg";
+import img_saree3 from "../assets/saree3.jpeg";
+import img_saree4 from "../assets/saree4.jpeg";
+import img_saree5 from "../assets/saree5.jpeg";
+import img_saree6 from "../assets/saree6.jpeg";
+import img_saree7 from "../assets/saree7.jpeg";
+import img_saree8 from "../assets/saree8.jpeg";
+import img_saree9 from "../assets/saree9.jpeg";
+import img_saree10 from "../assets/saree10.jpeg";
+import img_saree11 from "../assets/saree11.jpeg";
+import img_saree12 from "../assets/saree12.jpeg";
+import img_saree13 from "../assets/saree13.jpeg";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-// Map product IDs → local images (DB has no image column)
-const IMAGE_MAP = {
-  1: saree1,  2: saree2,  3: saree3,  4: saree4,
-  5: saree5,  6: saree6,  7: saree7,  8: saree8,
-  9: saree9,  10: saree10, 11: saree11, 12: saree12,
-  13: saree13,
+// ── Map DB filename → local bundled asset ────────────────────────────────────
+const FILENAME_MAP = {
+  "saree1.jpeg": img_saree1,   "saree2.jpeg": img_saree2,
+  "saree3.jpeg": img_saree3,   "saree4.jpeg": img_saree4,
+  "saree5.jpeg": img_saree5,   "saree6.jpeg": img_saree6,
+  "saree7.jpeg": img_saree7,   "saree8.jpeg": img_saree8,
+  "saree9.jpeg": img_saree9,   "saree10.jpeg": img_saree10,
+  "saree11.jpeg": img_saree11, "saree12.jpeg": img_saree12,
+  "saree13.jpeg": img_saree13,
 };
+function resolveImage(imageUrl) {
+  if (!imageUrl) return "";
+  return FILENAME_MAP[imageUrl] || imageUrl;
+}
 
 function ProductDetails({ addToCart, showToast }) {
   const { id } = useParams();
@@ -44,17 +51,15 @@ function ProductDetails({ addToCart, showToast }) {
           const pid = data.product_id || data.id || id;
           data.id = pid;
           // Always attach local image
-          data.image_url = IMAGE_MAP[pid] || data.image_url || "";
+          data.image_url = resolveImage(data.image_url) || "";
           setProduct(data);
         } else {
           // API returned nothing — show image-only placeholder if we have the image
-          const img = IMAGE_MAP[id];
-          setProduct(img ? { id, name: "Product " + id, price: 0, image_url: img } : null);
+          setProduct(null);
         }
       })
       .catch(() => {
-        const img = IMAGE_MAP[id];
-        setProduct(img ? { id, name: "Product " + id, price: 0, image_url: img } : null);
+        setProduct(null);
       })
       .finally(() => setLoading(false));
   }, [id]);
