@@ -190,6 +190,7 @@ function App() {
             {/* Cart gets the full local cart + all cart mutation functions */}
             <Route path="/cart" element={
               <Cart
+                user={user}
                 localCart={localCart}
                 showToast={showToast}
                 onUpdateItem={updateCartItem}
@@ -198,7 +199,7 @@ function App() {
               />
             } />
 
-            <Route path="/checkout" element={<Checkout showToast={showToast} localCart={localCart} />} />
+            <Route path="/checkout" element={<Checkout user={user} showToast={showToast} localCart={localCart} />} />
             <Route path="/order-summary/:orderId" element={<OrderSuccess />} />
 
             <Route path="/login" element={<Login showToast={showToast} onLogin={setUser} />} />

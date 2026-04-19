@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -10,7 +10,11 @@ function getShipping(pincode) {
   return { charge: 199, label: "Standard India Delivery", color: "var(--royal-blue)" };
 }
 
-function Checkout({ showToast, localCart = [] }) {
+function Checkout({ user, showToast, localCart = [] }) {
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading]     = useState(true);

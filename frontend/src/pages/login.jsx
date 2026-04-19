@@ -30,7 +30,8 @@ function Login({ onLogin, showToast }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Invalid credentials");
+        const errorDetail = Array.isArray(data.detail) ? data.detail[0].msg : data.detail;
+        throw new Error(errorDetail || data.message || "Invalid credentials");
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 
 from database import get_db
 from schemas.models import OrderRequest, RazorpayVerifyRequest
+from middleware.auth_middleware import require_user
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
@@ -14,7 +15,7 @@ razorpay_client = razorpay.Client(
 
 # POST /api/orders/create — Calculate total and Create Razorpay Order
 @router.post("/create")
-def create_razorpay_order(request: Request, body: OrderRequest, cur=Depends(get_db)):
+def create_razorpay_order(request: Request, body: OrderRequest, cur=Depends(get_db), user=Depends(require_user)):
     if len(body.cart) == 0:
         raise HTTPException(status_code=400, detail="All fields and at least one cart item are required")
 
@@ -121,7 +122,7 @@ def create_razorpay_order(request: Request, body: OrderRequest, cur=Depends(get_
 
 # POST /api/orders/verify — Verify Razorpay Payment
 @router.post("/verify")
-def verify_payment(body: RazorpayVerifyRequest, cur=Depends(get_db)):
+def verify_payment(body: RazorpayVerifyRequest, cur=Depends(get_db), user=Depends(require_user)):
     try:
         # Verify signature
         razorpay_client.utility.verify_payment_signature({
@@ -152,7 +153,7 @@ def verify_payment(body: RazorpayVerifyRequest, cur=Depends(get_db)):
 
 # GET /api/orders/{id} — Get order details by ID
 @router.get("/{order_id}")
-def get_order_by_id(order_id: int, cur=Depends(get_db)):
+def get_order_by_id(order_id: int, cur=Depends(get_db), user=Depends(require_user)):
     cur.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
     order = cur.fetchone()
 

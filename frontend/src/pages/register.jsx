@@ -47,7 +47,8 @@ function Register({ onLogin, showToast }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Registration failed");
+        const errorDetail = Array.isArray(data.detail) ? data.detail[0].msg : data.detail;
+        throw new Error(errorDetail || data.message || "Registration failed");
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);
