@@ -22,10 +22,6 @@ const IMAGE_MAP = {
   5: saree5,  6: saree6,  7: saree7,  8: saree8,
   9: saree9,  10: saree10, 11: saree11, 12: saree12,
   13: saree13,
-  14: saree1,  15: saree2,  16: saree3,  17: saree4,
-  18: saree5,  19: saree6,  20: saree7,  21: saree8,
-  22: saree9,  23: saree10, 24: saree11, 25: saree12,
-  26: saree13,
 };
 
 function ProductDetails({ addToCart, showToast }) {

@@ -22,11 +22,6 @@ const IMAGE_MAP = {
   5: saree5,  6: saree6,  7: saree7,  8: saree8,
   9: saree9,  10: saree10, 11: saree11, 12: saree12,
   13: saree13,
-  // Products 14-26 are duplicates of 1-13, so reuse images
-  14: saree1,  15: saree2,  16: saree3,  17: saree4,
-  18: saree5,  19: saree6,  20: saree7,  21: saree8,
-  22: saree9,  23: saree10, 24: saree11, 25: saree12,
-  26: saree13,
 };
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -372,12 +367,12 @@ function ProductCard({ product, onAddToCart }) {
       }}
     >
       {/* Image */}
-      <div style={{ position: "relative", overflow: "hidden", height: 340, background: "var(--champagne)" }}>
+      <div style={{ position: "relative", overflow: "hidden", height: 340, background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={product.name}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", transition: "transform 0.4s", padding: 4 }}
             onMouseEnter={e => e.currentTarget.style.transform = "scale(1.07)"}
             onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
           />
