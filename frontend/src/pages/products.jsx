@@ -2,19 +2,19 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 // ── Saree images (local assets — always available) ───────────────────────────
-import saree1 from "../assets/saree6.jpeg";
-import saree2 from "../assets/saree4.jpeg";
-import saree3 from "../assets/saree11.jpeg";
-import saree4 from "../assets/saree9.jpeg";
-import saree5 from "../assets/saree1.jpeg";
-import saree6 from "../assets/saree3.jpeg";
+import saree13 from "../assets/saree6.jpeg";
+import saree12 from "../assets/saree4.jpeg";
+import saree11 from "../assets/saree11.jpeg";
+import saree10 from "../assets/saree9.jpeg";
+import saree9 from "../assets/saree1.jpeg";
+import saree8 from "../assets/saree3.jpeg";
 import saree7 from "../assets/saree7.jpeg";
-import saree8 from "../assets/saree10.jpeg";
-import saree9 from "../assets/saree5.jpeg";
-import saree10 from "../assets/saree11.jpeg";
-import saree11 from "../assets/saree12.jpeg";
-import saree12 from "../assets/saree2.jpeg";
-import saree13 from "../assets/saree13.jpeg";
+import saree6 from "../assets/saree10.jpeg";
+import saree5 from "../assets/saree5.jpeg";
+import saree4 from "../assets/saree11.jpeg";
+import saree3 from "../assets/saree12.jpeg";
+import saree2 from "../assets/saree2.jpeg";
+import saree1 from "../assets/saree13.jpeg";
 
 // ── Map product IDs → local images (DB has no image column) ──────────────────
 const IMAGE_MAP = {
