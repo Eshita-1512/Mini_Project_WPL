@@ -45,7 +45,7 @@ def disconnect_db():
 
 
 def get_db():
-    \"\"\"FastAPI dependency – yields a connection and cursor from the pool.\"\"\"
+    
     conn = db_pool.getconn()
     try:
         # Prevent Neon DB idle disconnects: test connection, if closed or dead, replace
