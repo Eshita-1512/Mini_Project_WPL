@@ -174,7 +174,7 @@ function Checkout({ user, showToast, localCart = [] }) {
           Checkout
         </h1>
         <p style={{ color: "rgba(247,231,206,0.7)", fontSize: 14, marginTop: 6 }}>
-          Guest checkout available — no account required
+          Complete your order securely
         </p>
       </div>
 
@@ -321,7 +321,7 @@ function Checkout({ user, showToast, localCart = [] }) {
           </button>
 
           <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12, lineHeight: 1.6 }}>
-            Secure & encrypted checkout. No account required.
+            Secure & encrypted checkout.
           </p>
         </div>
       </div>

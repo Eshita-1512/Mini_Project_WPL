@@ -58,8 +58,12 @@ function App() {
   const fetchUser = useCallback(async () => {
     try {
       const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
-      if (res.ok) setUser(await res.json());
-      else setUser(null);
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user || data);
+      } else {
+        setUser(null);
+      }
     } catch {
       setUser(null);
     }
@@ -171,6 +175,8 @@ function App() {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); }
     catch { /* ignore */ }
     setUser(null);
+    setLocalCart([]);
+    localStorage.removeItem(CART_KEY);
     showToast("Logged out successfully");
   };
 

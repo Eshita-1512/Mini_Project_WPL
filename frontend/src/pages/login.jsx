@@ -147,30 +147,6 @@ function Login({ onLogin, showToast }) {
             </button>
           </form>
 
-          {/* Divider */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 12, margin: "20px 0",
-          }}>
-            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>or</span>
-            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-          </div>
-
-          {/* Guest checkout */}
-          <button
-            onClick={handleGuest}
-            style={{
-              width: "100%", padding: "12px",
-              background: "transparent", border: "2px solid var(--border)",
-              borderRadius: 8, fontSize: 14, fontWeight: 500,
-              color: "var(--text)", cursor: "pointer", transition: "0.2s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
-            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
-          >
-            Continue as Guest →
-          </button>
-
           {/* Links */}
           <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "var(--text-muted)" }}>
             Don't have an account?{" "}
