@@ -14,7 +14,7 @@ import img_saree11 from "../assets/saree11.jpeg";
 import img_saree12 from "../assets/saree12.jpeg";
 import img_saree13 from "../assets/saree13.jpeg";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 // ── Map DB filename → local bundled asset ────────────────────────────────────
 const FILENAME_MAP = {

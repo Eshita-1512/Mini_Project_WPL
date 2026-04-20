@@ -1,6 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 function Cart({ user, localCart = [], showToast, onUpdateItem, onRemoveItem, onClearCart }) {
   if (!user) {

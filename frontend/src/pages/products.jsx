@@ -31,7 +31,7 @@ function resolveImage(imageUrl) {
   return FILENAME_MAP[imageUrl] || imageUrl;
 }
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 // ── Static fallback — shown when backend is unavailable ──────────────────────
 const FALLBACK_PRODUCTS = [
