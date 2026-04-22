@@ -133,17 +133,14 @@ function Navbar({ cartCount = 0, user, onLogout }) {
                 }}>
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
-              )}
-            </Link>
-
-            {/* User / Admin actions */}
+              )}            {/* User / Admin actions */}
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-
                 <button onClick={onLogout} style={{
-                  padding: "6px 14px", background: "rgba(255,255,255,0.15)",
-                  color: "white", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)",
-                  fontSize: 13, cursor: "pointer", transition: "0.2s",
+                  height: "32px", width: "115px", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  background: "rgba(255,255,255,0.15)", color: "white", borderRadius: 6, 
+                  border: "1px solid rgba(255,255,255,0.2)", fontSize: 13, fontWeight: 500, 
+                  cursor: "pointer", transition: "0.2s", boxSizing: "border-box",
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
@@ -153,10 +150,10 @@ function Navbar({ cartCount = 0, user, onLogout }) {
                 {/* Role switch button — same style as Logout */}
                 {isOnAdmin ? (
                   <Link to="/login" style={{
-                    padding: "6px 14px", background: "rgba(255,255,255,0.15)",
-                    color: "white", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)",
-                    fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "0.2s",
-                    textDecoration: "none",
+                    height: "32px", width: "115px", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    background: "rgba(255,255,255,0.15)", color: "white", borderRadius: 6, 
+                    border: "1px solid rgba(255,255,255,0.2)", fontSize: 13, fontWeight: 500, 
+                    cursor: "pointer", transition: "0.2s", boxSizing: "border-box", textDecoration: "none",
                   }}
                     onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                     onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
@@ -165,10 +162,10 @@ function Navbar({ cartCount = 0, user, onLogout }) {
                   </Link>
                 ) : (
                   <Link to="/admin/login" style={{
-                    padding: "6px 14px", background: "rgba(255,255,255,0.15)",
-                    color: "white", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)",
-                    fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "0.2s",
-                    textDecoration: "none",
+                    height: "32px", width: "115px", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    background: "rgba(255,255,255,0.15)", color: "white", borderRadius: 6, 
+                    border: "1px solid rgba(255,255,255,0.2)", fontSize: 13, fontWeight: 500, 
+                    cursor: "pointer", transition: "0.2s", boxSizing: "border-box", textDecoration: "none",
                   }}
                     onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                     onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
@@ -180,9 +177,10 @@ function Navbar({ cartCount = 0, user, onLogout }) {
             ) : (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Link to="/login" style={{
-                  padding: "6px 16px", background: "rgba(255,255,255,0.14)",
-                  color: "#F7E7CE", borderRadius: 6, border: "1px solid rgba(255,255,255,0.22)",
-                  fontSize: 13, fontWeight: 500, transition: "0.2s",
+                  height: "32px", width: "115px", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  background: "rgba(255,255,255,0.14)", color: "#F7E7CE", borderRadius: 6, 
+                  border: "1px solid rgba(255,255,255,0.22)", fontSize: 13, fontWeight: 500, 
+                  transition: "0.2s", boxSizing: "border-box", textDecoration: "none",
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.24)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.14)"}
@@ -190,10 +188,10 @@ function Navbar({ cartCount = 0, user, onLogout }) {
                   Login
                 </Link>
                 <Link to="/admin/login" style={{
-                  padding: "6px 14px", background: "rgba(255,255,255,0.15)",
-                  color: "white", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)",
-                  fontSize: 13, fontWeight: 500, transition: "0.2s",
-                  textDecoration: "none",
+                  height: "32px", width: "115px", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  background: "rgba(255,255,255,0.15)", color: "white", borderRadius: 6, 
+                  border: "1px solid rgba(255,255,255,0.2)", fontSize: 13, fontWeight: 500, 
+                  transition: "0.2s", boxSizing: "border-box", textDecoration: "none",
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.25)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
