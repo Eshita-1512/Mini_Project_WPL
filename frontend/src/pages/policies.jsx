@@ -76,7 +76,7 @@ function Policies() {
           </h2>
 
           <PolicyBlock title="Processing Time">
-            All orders are processed within <strong>1–3 business days</strong> after payment confirmation.
+            All orders are processed within <strong>2 business days</strong> after payment confirmation.
             Orders placed on weekends or public holidays will be processed the next business day.
             Each saree is carefully hand-inspected, folded in tissue paper, and packed in our signature GAURA box before dispatch.
           </PolicyBlock>
