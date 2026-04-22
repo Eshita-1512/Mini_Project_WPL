@@ -1,6 +1,35 @@
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import React, { useState, useEffect, useCallback } from "react";
 
+// ── Saree images (local assets) ──────────────────────────────────────────────
+import img_saree1 from "../assets/saree1.jpeg";
+import img_saree2 from "../assets/saree2.jpeg";
+import img_saree3 from "../assets/saree3.jpeg";
+import img_saree4 from "../assets/saree4.jpeg";
+import img_saree5 from "../assets/saree5.jpeg";
+import img_saree6 from "../assets/saree6.jpeg";
+import img_saree7 from "../assets/saree7.jpeg";
+import img_saree8 from "../assets/saree8.jpeg";
+import img_saree9 from "../assets/saree9.jpeg";
+import img_saree10 from "../assets/saree10.jpeg";
+import img_saree11 from "../assets/saree11.jpeg";
+import img_saree12 from "../assets/saree12.jpeg";
+import img_saree13 from "../assets/saree13.jpeg";
+
+const FILENAME_MAP = {
+  "saree1.jpeg": img_saree1,   "saree2.jpeg": img_saree2,
+  "saree3.jpeg": img_saree3,   "saree4.jpeg": img_saree4,
+  "saree5.jpeg": img_saree5,   "saree6.jpeg": img_saree6,
+  "saree7.jpeg": img_saree7,   "saree8.jpeg": img_saree8,
+  "saree9.jpeg": img_saree9,   "saree10.jpeg": img_saree10,
+  "saree11.jpeg": img_saree11, "saree12.jpeg": img_saree12,
+  "saree13.jpeg": img_saree13,
+};
+function resolveImage(imageUrl) {
+  if (!imageUrl) return "";
+  return FILENAME_MAP[imageUrl] || imageUrl;
+}
+
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 /* ─────────────────────────────────────────────
@@ -150,13 +179,14 @@ function AdminProducts({ showToast }) {
         method: "DELETE", credentials: "include",
       });
       if (res.ok || res.status === 204) {
-        setProducts(prev => prev.filter(p => (p.product_id !== id && p.id !== id && p._id !== id)));
+        setProducts(prev => prev.filter(p => p.product_id != id && p.id != id));
         if (showToast) showToast(`"${name}" deleted`, "success");
       } else {
-        throw new Error("Delete failed");
+        const err = await res.json().catch(() => ({}));
+        if (showToast) showToast(err.detail || "Failed to delete product (check admin session)", "error");
       }
-    } catch {
-      if (showToast) showToast("Failed to delete product", "error");
+    } catch (e) {
+      if (showToast) showToast("Failed to delete product: " + e.message, "error");
     }
   };
 
@@ -172,22 +202,18 @@ function AdminProducts({ showToast }) {
           description: updated.description,
           price: parseFloat(updated.price) || 0,
           stock: parseInt(updated.stock) || 0,
-          category_id: updated.category_id ? parseInt(updated.category_id) : null,
+          category_id: updated.category_id ? parseInt(updated.category_id) : 1,
         }),
       });
       if (res.ok) {
         if (showToast) showToast("Product updated", "success");
         fetchProducts(); // refresh from backend
       } else {
-        // Optimistic update if API not available
-        setProducts(prev => prev.map(p => {
-          const pid = p.product_id || p.id || p._id;
-          return pid === id ? { ...p, ...updated } : p;
-        }));
-        if (showToast) showToast("Saved locally (backend may not support PUT yet)", "default");
+        const err = await res.json().catch(() => ({}));
+        if (showToast) showToast(err.detail || "Failed to update product (check admin session)", "error");
       }
-    } catch {
-      if (showToast) showToast("Failed to update product", "error");
+    } catch (e) {
+      if (showToast) showToast("Failed to update product: " + e.message, "error");
     }
     setEdit(null);
   };
@@ -203,19 +229,18 @@ function AdminProducts({ showToast }) {
           description: newProduct.description || "",
           price: parseFloat(newProduct.price) || 0,
           stock: parseInt(newProduct.stock) || 0,
-          category_id: newProduct.category_id ? parseInt(newProduct.category_id) : null,
+          category_id: newProduct.category_id ? parseInt(newProduct.category_id) : 1,
         }),
       });
       if (res.ok) {
         if (showToast) showToast("Product added successfully!", "success");
         fetchProducts(); // refresh from backend
       } else {
-        // Optimistic
-        setProducts(prev => [...prev, { ...newProduct, product_id: Date.now() }]);
-        if (showToast) showToast("Added locally (check backend)", "default");
+        const err = await res.json().catch(() => ({}));
+        if (showToast) showToast(err.detail || "Failed to add product (check admin session)", "error");
       }
-    } catch {
-      if (showToast) showToast("Failed to add product", "error");
+    } catch (e) {
+      if (showToast) showToast("Failed to add product: " + e.message, "error");
     }
     setShowAdd(false);
   };
@@ -384,7 +409,7 @@ function AdminProducts({ showToast }) {
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           {(p.image_url || p.image) && (
                             <img
-                              src={p.image_url || p.image}
+                              src={resolveImage(p.image_url || p.image)}
                               alt={p.name}
                               style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover" }}
                             />
@@ -469,8 +494,6 @@ function ProductModal({ product, onSave, onClose }) {
     name:          product?.name          || "",
     price:         product?.original_price || product?.price || "",
     stock:         product?.stock_quantity ?? product?.stock ?? "",
-    category_id:   product?.category_id   || "",
-    category_name: product?.category_name || product?.category || "",
     description:   product?.description   || "",
     image_url:     product?.image_url     || product?.image || "",
   });
@@ -489,7 +512,8 @@ function ProductModal({ product, onSave, onClose }) {
       ...form,
       price: parseFloat(form.price),
       stock: parseInt(form.stock) || 0,
-      category_id: form.category_id ? parseInt(form.category_id) : null,
+      // Auto-assign: keep existing category for edits, default to 1 for new
+      category_id: product?.category_id || 1,
     };
     onSave(payload);
   };
@@ -536,7 +560,6 @@ function ProductModal({ product, onSave, onClose }) {
             { label: "Product Name", name: "name", placeholder: "e.g. Swarna Kamal", type: "text", required: true },
             { label: "Price (MRP ₹)", name: "price", placeholder: "e.g. 15000", type: "number", required: true },
             { label: "Stock Quantity", name: "stock", placeholder: "e.g. 50", type: "number", required: false },
-            { label: "Category ID", name: "category_id", placeholder: "e.g. 1", type: "number", required: false },
             { label: "Image URL", name: "image_url", placeholder: "https://...", type: "text", required: false },
           ].map(({ label, name, placeholder, type, required }) => (
             <div key={name} className="form-group">

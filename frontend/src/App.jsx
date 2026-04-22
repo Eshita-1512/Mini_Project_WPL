@@ -17,9 +17,11 @@ import Contact from "./pages/contact.jsx";
 import Feedback from "./pages/feedback.jsx";
 import AdminLayout from "./pages/admin.jsx";
 import AdminLogin from "./pages/adminlogin.jsx";
+import Policies from "./pages/policies.jsx";
 
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 const CART_KEY = "gaura_cart";
+const ADMIN_SESSION_KEY = "gaura_admin_session";
 
 // ─── localStorage helpers ───────────────────────────────────────────────────
 function loadLocalCart() {
@@ -41,7 +43,14 @@ function saveLocalCart(cart) {
 function App() {
   const [toastMsg, setToastMsg]   = useState(null);
   const [toastType, setToastType] = useState("default");
-  const [user, setUser]           = useState(null);
+
+  // Restore admin session from localStorage on mount
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ADMIN_SESSION_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
 
   // Local cart is the source of truth for the UI.
   // It is also synced to/from the backend when the backend is available.
@@ -56,6 +65,15 @@ function App() {
 
   // ── Auth ────────────────────────────────────────────────────────────────
   const fetchUser = useCallback(async () => {
+    // If admin session exists in localStorage, keep it
+    try {
+      const savedAdmin = localStorage.getItem(ADMIN_SESSION_KEY);
+      if (savedAdmin) {
+        setUser(JSON.parse(savedAdmin));
+        return;
+      }
+    } catch { /* ignore */ }
+
     try {
       const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
       if (res.ok) {
@@ -174,13 +192,21 @@ function App() {
   const handleLogout = async () => {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); }
     catch { /* ignore */ }
+    try { await fetch(`${API}/api/admin/logout`, { method: "POST", credentials: "include" }); }
+    catch { /* ignore */ }
     setUser(null);
     setLocalCart([]);
     localStorage.removeItem(CART_KEY);
+    localStorage.removeItem(ADMIN_SESSION_KEY);
     showToast("Logged out successfully");
   };
 
-  const handleAdminLogin = (adminUser) => setUser(adminUser);
+  const handleAdminLogin = (adminUser) => {
+    const adminData = { ...adminUser, is_admin: true };
+    setUser(adminData);
+    try { localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminData)); }
+    catch { /* ignore */ }
+  };
 
   return (
     <BrowserRouter>
@@ -213,6 +239,7 @@ function App() {
 
             <Route path="/contact"  element={<Contact />} />
             <Route path="/feedback" element={<Feedback showToast={showToast} />} />
+            <Route path="/policies" element={<Policies />} />
 
             <Route path="/admin/login" element={<AdminLogin onAdminLogin={handleAdminLogin} showToast={showToast} />} />
             <Route path="/admin/*"     element={<AdminLayout user={user} showToast={showToast} />} />

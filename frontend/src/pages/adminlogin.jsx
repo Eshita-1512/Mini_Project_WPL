@@ -4,19 +4,19 @@ import { useNavigate } from "react-router-dom";
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 // Hardcoded fallback credentials (used if API fails)
-const ADMIN_EMAIL = "admin@gaura.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_USERNAME = "divi";
+const ADMIN_PASSWORD = "divi";
 
 function AdminLogin({ onAdminLogin, showToast }) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) { setError("Enter email and password."); return; }
+    if (!username || !password) { setError("Enter username and password."); return; }
     setError("");
     setLoading(true);
 
@@ -26,12 +26,12 @@ function AdminLogin({ onAdminLogin, showToast }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        if (onAdminLogin) onAdminLogin(data.admin || { email, is_admin: true });
+        if (onAdminLogin) onAdminLogin(data.admin || { username, is_admin: true });
         if (showToast) showToast("Admin login successful", "success");
         navigate("/admin/products");
         setLoading(false);
@@ -42,10 +42,10 @@ function AdminLogin({ onAdminLogin, showToast }) {
     }
 
     // Hardcoded fallback
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const adminUser = { email, is_admin: true, name: "Admin" };
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const adminUser = { username, is_admin: true, name: "Admin" };
       if (onAdminLogin) onAdminLogin(adminUser);
-      if (showToast) showToast("Admin login successful", "success");
+      if (showToast) showToast("Admin login successful (offline mode)", "success");
       navigate("/admin/products");
     } else {
       setError("Invalid admin credentials.");
@@ -99,13 +99,13 @@ function AdminLogin({ onAdminLogin, showToast }) {
           )}
 
           <div className="form-group">
-            <label>Admin Username / Email</label>
+            <label>Admin Username</label>
             <input
               className="form-input"
               type="text"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="admin@gaura.com"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Enter username"
               autoComplete="username"
             />
           </div>

@@ -91,8 +91,8 @@ function Footer() {
           <FooterHeading>Customer Care</FooterHeading>
           <FooterLinks links={[
             { to: "/feedback", label: "Feedback" },
-            { to: "#", label: "Shipping Policy" },
-            { to: "#", label: "Return Policy" },
+            { to: "/policies#shipping", label: "Shipping Policy" },
+            { to: "/policies#returns", label: "Return Policy" },
             { to: "#", label: "Size Guide" },
             { to: "#", label: "Care Instructions" },
             { to: "#", label: "Track Order" },
