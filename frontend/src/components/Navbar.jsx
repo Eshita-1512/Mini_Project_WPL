@@ -139,12 +139,7 @@ function Navbar({ cartCount = 0, user, onLogout }) {
             {/* User / Admin actions */}
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {user.is_admin && (
-                  <Link to="/admin"
-                    style={{ color: "var(--turmeric)", fontSize: 13, fontWeight: 600 }}>
-                    Admin
-                  </Link>
-                )}
+
                 <button onClick={onLogout} style={{
                   padding: "6px 14px", background: "rgba(255,255,255,0.15)",
                   color: "white", borderRadius: 6, border: "1px solid rgba(255,255,255,0.2)",
