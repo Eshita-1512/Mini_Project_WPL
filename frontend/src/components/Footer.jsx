@@ -20,7 +20,6 @@ function Footer() {
         {[
           { icon: "✦", text: "100% Authentic Handwoven" },
           { icon: "➜", text: "Free Shipping in Mumbai" },
-          { icon: "↩", text: "Easy 7-Day Returns" },
           { icon: "✧", text: "Secure Payments" },
         ].map(({ icon, text }) => (
           <div key={text} style={{
@@ -92,7 +91,6 @@ function Footer() {
           <FooterLinks links={[
             { to: "/feedback", label: "Feedback" },
             { to: "/policies#shipping", label: "Shipping Policy" },
-            { to: "/policies#returns", label: "Return Policy" },
             { to: "#", label: "Size Guide" },
             { to: "#", label: "Care Instructions" },
             { to: "#", label: "Track Order" },

@@ -220,7 +220,7 @@ function ProductDetails({ addToCart, showToast }) {
               "Handwoven by master artisans in Banaras",
               "Pure Katan Silk with Zari work",
               "Ships within 3–5 business days",
-              "7-day hassle-free returns",
+              "Certificate of Authenticity included",
             ].map(f => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{f}</span>

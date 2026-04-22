@@ -44,7 +44,6 @@ function Policies() {
         }}>
           {[
             { label: "Shipping Policy", href: "#shipping" },
-            { label: "Return Policy", href: "#returns" },
           ].map(({ label, href }) => (
             <a key={href} href={href} style={{
               padding: "10px 22px", borderRadius: 8,
@@ -112,61 +111,6 @@ function Policies() {
           />
         </section>
 
-        {/* ─── RETURN POLICY ─── */}
-        <section id="returns" style={{
-          background: "white", borderRadius: 16, padding: "40px",
-          boxShadow: "var(--shadow-sm)", border: "1px solid var(--border)",
-          marginBottom: 32,
-        }}>
-          <h2 style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 30, color: "var(--maroon)", marginBottom: 24,
-            paddingBottom: 16, borderBottom: "1px solid var(--border)",
-          }}>
-            Return & Exchange Policy
-          </h2>
-
-          <PolicyBlock title="Return Window">
-            We offer a <strong>7-day return window</strong> from the date of delivery.
-            If you are not completely satisfied with your purchase, you may initiate a return within this period.
-          </PolicyBlock>
-
-          <PolicyBlock title="Conditions for Return">
-            <ul style={listStyle}>
-              <li>The saree must be in its <strong>original, unused condition</strong> with all tags attached</li>
-              <li>The saree must be returned in its <strong>original packaging</strong></li>
-              <li>Sarees with stains, damage, or signs of use <strong>will not be accepted</strong> for return</li>
-              <li>Custom or personalised orders are <strong>non-returnable</strong></li>
-              <li>Sale items marked as "Final Sale" are <strong>non-returnable</strong></li>
-            </ul>
-          </PolicyBlock>
-
-          <PolicyBlock title="How to Initiate a Return">
-            <ol style={{ ...listStyle, listStyleType: "decimal" }}>
-              <li>Email us at <a href="mailto:gaura@gmail.com" style={{ color: "var(--maroon)", fontWeight: 600 }}>gaura@gmail.com</a> with your order ID and reason for return</li>
-              <li>Our team will review your request within 24 hours</li>
-              <li>Once approved, we'll arrange a free pickup from your address</li>
-              <li>Upon receiving and inspecting the item, we'll process your refund</li>
-            </ol>
-          </PolicyBlock>
-
-          <PolicyBlock title="Refund Process">
-            Refunds are processed within <strong>5–7 business days</strong> after we receive the returned item.
-            The refund will be credited to your original payment method.
-            Please note that your bank may take an additional 3–5 business days to reflect the credit.
-          </PolicyBlock>
-
-          <PolicyBlock title="Exchanges">
-            We're happy to facilitate exchanges! If you'd like a different colour, size, or design, simply mention it in your return request.
-            Exchanges are subject to stock availability.
-          </PolicyBlock>
-
-          <InfoCard
-            icon="✧"
-            title="Questions?"
-            desc="Reach out to us at gaura@gmail.com or call +91 99999 99999 for any policy-related queries. We're here to help!"
-          />
-        </section>
 
         {/* Bottom info cards */}
         <div style={{
@@ -175,7 +119,7 @@ function Policies() {
         }}>
           {[
             { icon: "➜", title: "Free Shipping", desc: "On all Mumbai orders — no minimum spend required." },
-            { icon: "↩", title: "7-Day Returns", desc: "Hassle-free returns within 7 days of delivery." },
+            { icon: "✦", title: "Quality Assured", desc: "Every saree comes with a certificate of authenticity." },
             { icon: "✧", title: "Secure Payments", desc: "Razorpay-powered payments with 256-bit encryption." },
           ].map(({ icon, title, desc }) => (
             <div key={title} style={{
