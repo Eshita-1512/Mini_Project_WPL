@@ -39,9 +39,9 @@ function saveLocalCart(cart) {
 
 // ─── App ────────────────────────────────────────────────────────────────────
 function App() {
-  const [toastMsg, setToastMsg] = useState(null);
+  const [toastMsg, setToastMsg]   = useState(null);
   const [toastType, setToastType] = useState("default");
-  const [user, setUser] = useState(null);
+  const [user, setUser]           = useState(null);
 
   // Local cart is the source of truth for the UI.
   // It is also synced to/from the backend when the backend is available.
@@ -136,7 +136,7 @@ function App() {
     ));
     fetch(`${API}/api/cart/${id}`, {
       method: "DELETE", credentials: "include",
-    }).catch(() => { });
+    }).catch(() => {});
   }, []);
 
   /**
@@ -154,7 +154,7 @@ function App() {
       method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId: id, quantity: newQty }),
-    }).catch(() => { });
+    }).catch(() => {});
   }, [removeFromCart]);
 
   /**
@@ -162,7 +162,7 @@ function App() {
    */
   const clearCart = useCallback(() => {
     setLocalCart([]);
-    fetch(`${API}/api/cart`, { method: "DELETE", credentials: "include" }).catch(() => { });
+    fetch(`${API}/api/cart`, { method: "DELETE", credentials: "include" }).catch(() => {});
   }, []);
 
   // ── Auth handlers ────────────────────────────────────────────────────────
@@ -200,14 +200,14 @@ function App() {
             <Route path="/checkout" element={<Checkout showToast={showToast} localCart={localCart} />} />
             <Route path="/order-summary/:orderId" element={<OrderSuccess />} />
 
-            <Route path="/login" element={<Login showToast={showToast} onLogin={setUser} />} />
+            <Route path="/login"    element={<Login    showToast={showToast} onLogin={setUser} />} />
             <Route path="/register" element={<Register showToast={showToast} onLogin={setUser} />} />
 
-            <Route path="/contact" element={<Contact />} />
+            <Route path="/contact"  element={<Contact />} />
             <Route path="/feedback" element={<Feedback showToast={showToast} />} />
 
             <Route path="/admin/login" element={<AdminLogin onAdminLogin={handleAdminLogin} showToast={showToast} />} />
-            <Route path="/admin/*" element={<AdminLayout user={user} showToast={showToast} />} />
+            <Route path="/admin/*"     element={<AdminLayout user={user} showToast={showToast} />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
