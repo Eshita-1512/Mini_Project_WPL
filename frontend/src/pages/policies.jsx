@@ -42,22 +42,7 @@ function Policies() {
         <div style={{
           display: "flex", gap: 12, marginBottom: 32,
         }}>
-          {[
-            { label: "Shipping Policy", href: "#shipping" },
-          ].map(({ label, href }) => (
-            <a key={href} href={href} style={{
-              padding: "10px 22px", borderRadius: 8,
-              background: "white", border: "1px solid var(--border)",
-              boxShadow: "var(--shadow-sm)", fontSize: 14,
-              fontWeight: 600, color: "var(--maroon)", transition: "0.2s",
-              textDecoration: "none",
-            }}
-              onMouseEnter={e => { e.currentTarget.style.background = "var(--maroon)"; e.currentTarget.style.color = "white"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "white"; e.currentTarget.style.color = "var(--maroon)"; }}
-            >
-              {label}
-            </a>
-          ))}
+
         </div>
 
         {/* ─── SHIPPING POLICY ─── */}
