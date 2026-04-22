@@ -71,6 +71,32 @@ function Navbar({ cartCount = 0, user, onLogout }) {
             }}>GAURA</span>
           </Link>
 
+          {/* Admin Login Button */}
+          <Link to="/admin/login" style={{
+            padding: "5px 12px",
+            background: "rgba(218,165,32,0.12)",
+            color: "var(--turmeric, #DAA520)",
+            borderRadius: 6,
+            border: "1px solid rgba(218,165,32,0.35)",
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: "0.3px",
+            transition: "all 0.2s ease",
+            textTransform: "uppercase",
+            marginLeft: 8,
+          }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = "rgba(218,165,32,0.25)";
+              e.currentTarget.style.borderColor = "rgba(218,165,32,0.6)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = "rgba(218,165,32,0.12)";
+              e.currentTarget.style.borderColor = "rgba(218,165,32,0.35)";
+            }}
+          >
+            Login as Admin
+          </Link>
+
           {/* Nav links */}
           <div style={{ display: "flex", gap: 4 }}>
             {links.map(({ to, label }) => (
