@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
@@ -73,7 +73,7 @@ function AdminLayout({ user, showToast }) {
               Admin Dashboard
             </h1>
             <p style={{ color: "rgba(247,231,206,0.65)", fontSize: 13, marginTop: 4 }}>
-              Welcome, {user.name || user.email}
+              Welcome, {user.name || user.username || user.email}
             </p>
           </div>
 
@@ -114,6 +114,7 @@ function AdminProducts({ showToast }) {
   const [loading, setLoading]     = useState(true);
   const [editTarget, setEdit]     = useState(null);   // null | product object
   const [showAdd, setShowAdd]     = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -121,11 +122,17 @@ function AdminProducts({ showToast }) {
       const res = await fetch(`${API}/api/admin/products`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        setProducts(Array.isArray(data) ? data : []);
+        // Backend returns { success, count, products: [...] }
+        const list = data.products || (Array.isArray(data) ? data : []);
+        setProducts(list);
       } else {
         // fallback: public endpoint
         const r2 = await fetch(`${API}/api/products`, { credentials: "include" });
-        if (r2.ok) setProducts(await r2.json());
+        if (r2.ok) {
+          const data2 = await r2.json();
+          const list2 = data2.products || (Array.isArray(data2) ? data2 : []);
+          setProducts(list2);
+        }
       }
     } catch {
       setProducts([]);
@@ -143,7 +150,7 @@ function AdminProducts({ showToast }) {
         method: "DELETE", credentials: "include",
       });
       if (res.ok || res.status === 204) {
-        setProducts(prev => prev.filter(p => (p.id !== id && p._id !== id)));
+        setProducts(prev => prev.filter(p => (p.product_id !== id && p.id !== id && p._id !== id)));
         if (showToast) showToast(`"${name}" deleted`, "success");
       } else {
         throw new Error("Delete failed");
@@ -155,20 +162,28 @@ function AdminProducts({ showToast }) {
 
   const handleSaveEdit = async (updated) => {
     try {
-      const id = updated.id || updated._id;
+      const id = updated.product_id || updated.id || updated._id;
       const res = await fetch(`${API}/api/admin/products/${id}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
+        body: JSON.stringify({
+          name: updated.name,
+          description: updated.description,
+          price: parseFloat(updated.price) || 0,
+          stock: parseInt(updated.stock) || 0,
+          category_id: updated.category_id ? parseInt(updated.category_id) : null,
+        }),
       });
       if (res.ok) {
-        const saved = await res.json();
-        setProducts(prev => prev.map(p => (p.id === id || p._id === id) ? (saved || updated) : p));
         if (showToast) showToast("Product updated", "success");
+        fetchProducts(); // refresh from backend
       } else {
         // Optimistic update if API not available
-        setProducts(prev => prev.map(p => (p.id === id || p._id === id) ? updated : p));
+        setProducts(prev => prev.map(p => {
+          const pid = p.product_id || p.id || p._id;
+          return pid === id ? { ...p, ...updated } : p;
+        }));
         if (showToast) showToast("Saved locally (backend may not support PUT yet)", "default");
       }
     } catch {
@@ -183,15 +198,20 @@ function AdminProducts({ showToast }) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify({
+          name: newProduct.name,
+          description: newProduct.description || "",
+          price: parseFloat(newProduct.price) || 0,
+          stock: parseInt(newProduct.stock) || 0,
+          category_id: newProduct.category_id ? parseInt(newProduct.category_id) : null,
+        }),
       });
       if (res.ok) {
-        const saved = await res.json();
-        setProducts(prev => [...prev, saved]);
-        if (showToast) showToast("Product added", "success");
+        if (showToast) showToast("Product added successfully!", "success");
+        fetchProducts(); // refresh from backend
       } else {
         // Optimistic
-        setProducts(prev => [...prev, { ...newProduct, id: Date.now().toString() }]);
+        setProducts(prev => [...prev, { ...newProduct, product_id: Date.now() }]);
         if (showToast) showToast("Added locally (check backend)", "default");
       }
     } catch {
@@ -199,6 +219,11 @@ function AdminProducts({ showToast }) {
     }
     setShowAdd(false);
   };
+
+  const filteredProducts = products.filter(p =>
+    !searchTerm || (p.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+      || (p.category_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
@@ -211,6 +236,36 @@ function AdminProducts({ showToast }) {
         />
       )}
 
+      {/* Stats bar */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: 16, marginBottom: 24,
+      }}>
+        {[
+          { label: "Total Products", value: products.length, icon: "📦", color: "#4F46E5" },
+          { label: "In Stock", value: products.filter(p => (p.stock_quantity || p.stock || 0) > 0).length, icon: "✅", color: "#059669" },
+          { label: "Out of Stock", value: products.filter(p => (p.stock_quantity || p.stock || 0) === 0).length, icon: "⚠️", color: "#DC2626" },
+        ].map(stat => (
+          <div key={stat.label} style={{
+            background: "white", borderRadius: 12, padding: "20px 22px",
+            border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)",
+            display: "flex", alignItems: "center", gap: 16,
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 10,
+              background: `${stat.color}12`, display: "flex",
+              alignItems: "center", justifyContent: "center", fontSize: 20,
+            }}>
+              {stat.icon}
+            </div>
+            <div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: "var(--text)" }}>{stat.value}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{stat.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div style={{
         background: "white", borderRadius: 14,
         boxShadow: "var(--shadow-sm)", border: "1px solid var(--border)",
@@ -221,6 +276,7 @@ function AdminProducts({ showToast }) {
           display: "flex", justifyContent: "space-between",
           alignItems: "center", padding: "20px 24px",
           borderBottom: "1px solid var(--border)",
+          flexWrap: "wrap", gap: 12,
         }}>
           <div>
             <h2 style={{
@@ -230,21 +286,54 @@ function AdminProducts({ showToast }) {
               Products
             </h2>
             <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
-              {loading ? "Loading..." : `${products.length} products`}
+              {loading ? "Loading..." : `${filteredProducts.length} of ${products.length} products`}
             </p>
           </div>
-          <button
-            onClick={() => setShowAdd(true)}
-            style={{
-              padding: "10px 20px", background: "var(--maroon)", color: "white",
-              border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600,
-              cursor: "pointer", transition: "0.2s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--maroon-dark)"}
-            onMouseLeave={e => e.currentTarget.style.background = "var(--maroon)"}
-          >
-            + Add Product
-          </button>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{
+                padding: "8px 14px", borderRadius: 8,
+                border: "1px solid var(--border)", fontSize: 13,
+                outline: "none", width: 200,
+                transition: "0.2s",
+              }}
+              onFocus={e => e.target.style.borderColor = "var(--maroon)"}
+              onBlur={e => e.target.style.borderColor = "var(--border)"}
+            />
+            {/* Refresh */}
+            <button
+              onClick={fetchProducts}
+              title="Refresh"
+              style={{
+                padding: "8px 14px", background: "transparent",
+                border: "1px solid var(--border)", borderRadius: 8,
+                fontSize: 14, cursor: "pointer", transition: "0.2s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
+            >
+              ↻ Refresh
+            </button>
+            {/* Add */}
+            <button
+              onClick={() => setShowAdd(true)}
+              style={{
+                padding: "10px 20px", background: "var(--maroon)", color: "white",
+                border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600,
+                cursor: "pointer", transition: "0.2s",
+                display: "flex", alignItems: "center", gap: 6,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--maroon-dark)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--maroon)"}
+            >
+              + Add Product
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -253,98 +342,118 @@ function AdminProducts({ showToast }) {
               <div key={i} className="skeleton" style={{ height: 52, borderRadius: 8, marginBottom: 12 }} />
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--text-muted)" }}>
-            No products found. Add your first product above.
+            {products.length === 0
+              ? "No products found. Add your first product above."
+              : "No products match your search."}
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--bg)" }}>
-                {["#", "Product Name", "MRP", "Discounted", "Category", "Actions"].map(h => (
-                  <th key={h} style={{
-                    padding: "12px 16px", textAlign: "left",
-                    fontSize: 11, fontWeight: 700, color: "var(--text-muted)",
-                    textTransform: "uppercase", letterSpacing: "0.8px",
-                    borderBottom: "1px solid var(--border)",
-                  }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p, idx) => {
-                const discPrice = Math.round((p.price || 0) * 0.75);
-                const id = p.id || p._id;
-                return (
-                  <tr
-                    key={id}
-                    style={{ borderBottom: "1px solid var(--border)", transition: "0.15s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "rgba(128,0,32,0.03)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "white"}
-                  >
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
-                      {idx + 1}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        {(p.image_url || p.image) && (
-                          <img
-                            src={p.image_url || p.image}
-                            alt={p.name}
-                            style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover" }}
-                          />
-                        )}
-                        <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
-                          {p.name}
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+              <thead>
+                <tr style={{ background: "var(--bg)" }}>
+                  {["#", "Product Name", "Price (MRP)", "Stock", "Category", "Actions"].map(h => (
+                    <th key={h} style={{
+                      padding: "12px 16px", textAlign: "left",
+                      fontSize: 11, fontWeight: 700, color: "var(--text-muted)",
+                      textTransform: "uppercase", letterSpacing: "0.8px",
+                      borderBottom: "1px solid var(--border)",
+                    }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map((p, idx) => {
+                  const id = p.product_id || p.id || p._id;
+                  const price = p.original_price || p.price || 0;
+                  const stock = p.stock_quantity ?? p.stock ?? 0;
+                  return (
+                    <tr
+                      key={id}
+                      style={{ borderBottom: "1px solid var(--border)", transition: "0.15s" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(128,0,32,0.03)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "white"}
+                    >
+                      <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
+                        {idx + 1}
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          {(p.image_url || p.image) && (
+                            <img
+                              src={p.image_url || p.image}
+                              alt={p.name}
+                              style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover" }}
+                            />
+                          )}
+                          <div>
+                            <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>
+                              {p.name}
+                            </span>
+                            {p.description && (
+                              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2, maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {p.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "var(--maroon)" }}>
+                        ₹{price.toLocaleString()}
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <span style={{
+                          padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                          background: stock > 0 ? "#D1FAE5" : "#FEE2E2",
+                          color: stock > 0 ? "#065F46" : "#991B1B",
+                        }}>
+                          {stock > 0 ? `${stock} in stock` : "Out of stock"}
                         </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 14, color: "var(--text-muted)", textDecoration: "line-through" }}>
-                      ₹{(p.price || 0).toLocaleString()}
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 14, fontWeight: 700, color: "var(--maroon)" }}>
-                      ₹{discPrice.toLocaleString()}
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
-                      {p.category_name || p.category || "—"}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <button
-                        onClick={() => setEdit(p)}
-                        style={{
-                          marginRight: 8, padding: "5px 14px",
-                          background: "transparent", border: "1px solid var(--royal-blue)",
-                          color: "var(--royal-blue)", borderRadius: 6,
-                          fontSize: 13, fontWeight: 500, cursor: "pointer",
-                          transition: "0.2s",
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "var(--royal-blue)"; e.currentTarget.style.color = "white"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--royal-blue)"; }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(id, p.name)}
-                        style={{
-                          padding: "5px 14px",
-                          background: "transparent", border: "1px solid #b91c1c",
-                          color: "#b91c1c", borderRadius: 6,
-                          fontSize: 13, fontWeight: 500, cursor: "pointer",
-                          transition: "0.2s",
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "#b91c1c"; e.currentTarget.style.color = "white"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#b91c1c"; }}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
+                        {p.category_name || p.category || "—"}
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={() => setEdit(p)}
+                            style={{
+                              padding: "6px 14px",
+                              background: "transparent", border: "1px solid var(--royal-blue, #3B82F6)",
+                              color: "var(--royal-blue, #3B82F6)", borderRadius: 6,
+                              fontSize: 13, fontWeight: 500, cursor: "pointer",
+                              transition: "0.2s",
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = "var(--royal-blue, #3B82F6)"; e.currentTarget.style.color = "white"; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--royal-blue, #3B82F6)"; }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(id, p.name)}
+                            style={{
+                              padding: "6px 14px",
+                              background: "transparent", border: "1px solid #b91c1c",
+                              color: "#b91c1c", borderRadius: 6,
+                              fontSize: 13, fontWeight: 500, cursor: "pointer",
+                              transition: "0.2s",
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = "#b91c1c"; e.currentTarget.style.color = "white"; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#b91c1c"; }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -358,7 +467,9 @@ function ProductModal({ product, onSave, onClose }) {
   const isEdit = !!product;
   const [form, setForm] = useState({
     name:          product?.name          || "",
-    price:         product?.price         || "",
+    price:         product?.original_price || product?.price || "",
+    stock:         product?.stock_quantity ?? product?.stock ?? "",
+    category_id:   product?.category_id   || "",
     category_name: product?.category_name || product?.category || "",
     description:   product?.description   || "",
     image_url:     product?.image_url     || product?.image || "",
@@ -377,6 +488,8 @@ function ProductModal({ product, onSave, onClose }) {
       ...(product || {}),
       ...form,
       price: parseFloat(form.price),
+      stock: parseInt(form.stock) || 0,
+      category_id: form.category_id ? parseInt(form.category_id) : null,
     };
     onSave(payload);
   };
@@ -404,7 +517,7 @@ function ProductModal({ product, onSave, onClose }) {
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: 26, color: "var(--maroon)",
           }}>
-            {isEdit ? "Edit Product" : "Add Product"}
+            {isEdit ? "Edit Product" : "Add New Product"}
           </h2>
           <button
             onClick={onClose}
@@ -420,19 +533,21 @@ function ProductModal({ product, onSave, onClose }) {
 
         <form onSubmit={handleSubmit}>
           {[
-            { label: "Product Name", name: "name", placeholder: "e.g. Swarna Kamal", type: "text" },
-            { label: "Price (MRP ₹)", name: "price", placeholder: "e.g. 15000", type: "number" },
-            { label: "Category", name: "category_name", placeholder: "e.g. Silk Saree", type: "text" },
-            { label: "Image URL", name: "image_url", placeholder: "https://...", type: "text" },
-          ].map(({ label, name, placeholder, type }) => (
+            { label: "Product Name", name: "name", placeholder: "e.g. Swarna Kamal", type: "text", required: true },
+            { label: "Price (MRP ₹)", name: "price", placeholder: "e.g. 15000", type: "number", required: true },
+            { label: "Stock Quantity", name: "stock", placeholder: "e.g. 50", type: "number", required: false },
+            { label: "Category ID", name: "category_id", placeholder: "e.g. 1", type: "number", required: false },
+            { label: "Image URL", name: "image_url", placeholder: "https://...", type: "text", required: false },
+          ].map(({ label, name, placeholder, type, required }) => (
             <div key={name} className="form-group">
-              <label>{label}</label>
+              <label>{label} {required && <span style={{ color: "#b91c1c" }}>*</span>}</label>
               <input
                 className="form-input"
                 type={type} name={name}
                 value={form[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
+                required={required}
               />
             </div>
           ))}
@@ -450,6 +565,22 @@ function ProductModal({ product, onSave, onClose }) {
             />
           </div>
 
+          {/* Preview */}
+          {form.image_url && (
+            <div style={{ marginBottom: 20, textAlign: "center" }}>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Image Preview</p>
+              <img
+                src={form.image_url}
+                alt="Preview"
+                style={{
+                  maxWidth: "100%", maxHeight: 150, borderRadius: 8,
+                  border: "1px solid var(--border)", objectFit: "cover",
+                }}
+                onError={e => { e.target.style.display = "none"; }}
+              />
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 12 }}>
             <button
               type="submit"
@@ -457,8 +588,10 @@ function ProductModal({ product, onSave, onClose }) {
                 flex: 1, padding: "12px",
                 background: "var(--maroon)", color: "white",
                 border: "none", borderRadius: 8, fontSize: 14,
-                fontWeight: 600, cursor: "pointer",
+                fontWeight: 600, cursor: "pointer", transition: "0.2s",
               }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--maroon-dark, #5a0018)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--maroon)"}
             >
               {isEdit ? "Save Changes" : "Add Product"}
             </button>
@@ -488,14 +621,50 @@ function AdminOrders({ showToast }) {
   const [orders, setOrders]         = useState([]);
   const [loading, setLoading]       = useState(true);
   const [expandedId, setExpandedId] = useState(null);
+  const [orderDetails, setOrderDetails] = useState({}); // keyed by order_id
 
-  useEffect(() => {
-    fetch(`${API}/api/admin/orders`, { credentials: "include" })
-      .then(r => (r.ok ? r.json() : []))
-      .then(data => setOrders(Array.isArray(data) ? data : []))
-      .catch(() => setOrders([]))
-      .finally(() => setLoading(false));
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/admin/orders`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        // Backend returns { success, count, orders: [...] }
+        const list = data.orders || (Array.isArray(data) ? data : []);
+        setOrders(list);
+      } else {
+        setOrders([]);
+      }
+    } catch {
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+
+  const fetchOrderDetail = async (orderId) => {
+    if (orderDetails[orderId]) return; // already fetched
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${orderId}`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setOrderDetails(prev => ({ ...prev, [orderId]: data }));
+      }
+    } catch {
+      // silently fail
+    }
+  };
+
+  const toggleExpand = (oid) => {
+    if (expandedId === oid) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(oid);
+      fetchOrderDetail(oid);
+    }
+  };
 
   const statusBadge = (status) => {
     const map = {
@@ -519,160 +688,258 @@ function AdminOrders({ showToast }) {
     );
   };
 
+  // Stats
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+  const statusCounts = orders.reduce((acc, o) => {
+    const s = (o.order_status || "pending").toLowerCase();
+    acc[s] = (acc[s] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
-    <div style={{
-      background: "white", borderRadius: 14,
-      boxShadow: "var(--shadow-sm)", border: "1px solid var(--border)",
-      overflow: "hidden",
-    }}>
-      {/* Header */}
+    <div>
+      {/* Stats */}
       <div style={{
-        padding: "20px 24px",
-        borderBottom: "1px solid var(--border)",
+        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: 16, marginBottom: 24,
       }}>
-        <h2 style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 24, color: "var(--maroon)",
-        }}>
-          All Orders
-        </h2>
-        <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
-          {loading ? "Loading..." : `${orders.length} order${orders.length !== 1 ? "s" : ""}`}
-        </p>
+        {[
+          { label: "Total Orders", value: orders.length, icon: "🛒", color: "#4F46E5" },
+          { label: "Revenue", value: `₹${totalRevenue.toLocaleString()}`, icon: "💰", color: "#059669" },
+          { label: "Pending", value: statusCounts.pending || 0, icon: "⏳", color: "#D97706" },
+          { label: "Delivered", value: statusCounts.delivered || 0, icon: "✅", color: "#059669" },
+        ].map(stat => (
+          <div key={stat.label} style={{
+            background: "white", borderRadius: 12, padding: "20px 22px",
+            border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)",
+            display: "flex", alignItems: "center", gap: 16,
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 10,
+              background: `${stat.color}12`, display: "flex",
+              alignItems: "center", justifyContent: "center", fontSize: 20,
+            }}>
+              {stat.icon}
+            </div>
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "var(--text)" }}>{stat.value}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{stat.label}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {loading ? (
-        <div style={{ padding: 24 }}>
-          {[1,2,3].map(i => (
-            <div key={i} className="skeleton" style={{ height: 64, borderRadius: 8, marginBottom: 12 }} />
-          ))}
+      <div style={{
+        background: "white", borderRadius: 14,
+        boxShadow: "var(--shadow-sm)", border: "1px solid var(--border)",
+        overflow: "hidden",
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: "20px 24px",
+          borderBottom: "1px solid var(--border)",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+        }}>
+          <div>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 24, color: "var(--maroon)",
+            }}>
+              All Orders
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
+              {loading ? "Loading..." : `${orders.length} order${orders.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <button
+            onClick={fetchOrders}
+            style={{
+              padding: "8px 14px", background: "transparent",
+              border: "1px solid var(--border)", borderRadius: 8,
+              fontSize: 14, cursor: "pointer", transition: "0.2s",
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
+          >
+            ↻ Refresh
+          </button>
         </div>
-      ) : orders.length === 0 ? (
-        <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--text-muted)" }}>
-          No orders yet.
-        </div>
-      ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "var(--bg)" }}>
-              {["Order ID", "Customer", "Amount", "Shipping", "Status", "Details"].map(h => (
-                <th key={h} style={{
-                  padding: "12px 16px", textAlign: "left",
-                  fontSize: 11, fontWeight: 700, color: "var(--text-muted)",
-                  textTransform: "uppercase", letterSpacing: "0.8px",
-                  borderBottom: "1px solid var(--border)",
-                }}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(o => {
-              const oid = o.id || o._id || o.order_id;
-              const isExpanded = expandedId === oid;
-              return (
-                <>
-                  <tr
-                    key={oid}
-                    style={{ borderBottom: "1px solid var(--border)", transition: "0.15s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "rgba(128,0,32,0.03)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "white"}
-                  >
-                    <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 600 }}>
-                      #{oid}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
-                        {o.name}
-                      </p>
-                      <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{o.email}</p>
-                    </td>
-                    <td style={{ padding: "14px 16px", fontWeight: 700, color: "var(--maroon)", fontSize: 14 }}>
-                      ₹{(o.total_amount || 0).toLocaleString()}
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
-                      {o.shipping_charge === 0 ? "FREE" : `₹${o.shipping_charge}`}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      {statusBadge(o.order_status)}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <button
-                        onClick={() => setExpandedId(isExpanded ? null : oid)}
-                        style={{
-                          padding: "5px 14px", background: "transparent",
-                          border: "1px solid var(--border)", borderRadius: 6,
-                          fontSize: 13, cursor: "pointer", color: "var(--text)",
-                          transition: "0.2s",
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
-                        onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
-                      >
-                        {isExpanded ? "▲ Hide" : "▼ View"}
-                      </button>
-                    </td>
-                  </tr>
 
-                  {/* Expanded row */}
-                  {isExpanded && (
-                    <tr key={`${oid}-detail`} style={{ background: "rgba(128,0,32,0.02)" }}>
-                      <td colSpan={6} style={{ padding: "16px 24px" }}>
-                        <div style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr", gap: 24,
-                        }}>
-                          <div>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>
-                              Shipping Address
-                            </p>
-                            <p style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.7 }}>
-                              {o.address}, {o.city}<br />
-                              Pincode: {o.pincode}<br />
-                              Phone: {o.phone}
-                            </p>
-                          </div>
-                          <div>
-                            <p style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>
-                              Items
-                            </p>
-                            {o.items?.map((item, i) => (
-                              <div key={i} style={{
-                                display: "flex", justifyContent: "space-between",
-                                fontSize: 13, color: "var(--text)", paddingBottom: 4,
-                              }}>
-                                <span>{item.product_name} × {item.quantity}</span>
-                                <span style={{ fontWeight: 600, color: "var(--maroon)" }}>
-                                  ₹{item.final_price?.toLocaleString()}
-                                </span>
-                              </div>
-                            )) || (
-                              <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                                Item details not available
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div style={{ marginTop: 14 }}>
-                          <Link
-                            to={`/order-summary/${oid}`}
+        {loading ? (
+          <div style={{ padding: 24 }}>
+            {[1,2,3].map(i => (
+              <div key={i} className="skeleton" style={{ height: 64, borderRadius: 8, marginBottom: 12 }} />
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
+          <div style={{ padding: "60px 24px", textAlign: "center", color: "var(--text-muted)" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
+            <p style={{ fontSize: 16, fontWeight: 500 }}>No orders yet</p>
+            <p style={{ fontSize: 13, marginTop: 6 }}>Orders will appear here when customers place them</p>
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}>
+              <thead>
+                <tr style={{ background: "var(--bg)" }}>
+                  {["Order ID", "Customer", "Date", "Amount", "Status", "Details"].map(h => (
+                    <th key={h} style={{
+                      padding: "12px 16px", textAlign: "left",
+                      fontSize: 11, fontWeight: 700, color: "var(--text-muted)",
+                      textTransform: "uppercase", letterSpacing: "0.8px",
+                      borderBottom: "1px solid var(--border)",
+                    }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(o => {
+                  const oid = o.order_id || o.id || o._id;
+                  const isExpanded = expandedId === oid;
+                  const detail = orderDetails[oid];
+                  return (
+                    <React.Fragment key={oid}>
+                      <tr
+                        style={{
+                          borderBottom: isExpanded ? "none" : "1px solid var(--border)",
+                          transition: "0.15s",
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(128,0,32,0.03)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "white"}
+                      >
+                        <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 600 }}>
+                          #{oid}
+                        </td>
+                        <td style={{ padding: "14px 16px" }}>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+                            {o.customer_name || o.name || "—"}
+                          </p>
+                          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                            {o.customer_email || o.email || ""}
+                          </p>
+                        </td>
+                        <td style={{ padding: "14px 16px", fontSize: 13, color: "var(--text-muted)" }}>
+                          {o.order_date
+                            ? new Date(o.order_date).toLocaleDateString("en-IN", {
+                                day: "numeric", month: "short", year: "numeric"
+                              })
+                            : "—"}
+                        </td>
+                        <td style={{ padding: "14px 16px", fontWeight: 700, color: "var(--maroon)", fontSize: 14 }}>
+                          ₹{(o.total_amount || 0).toLocaleString()}
+                        </td>
+                        <td style={{ padding: "14px 16px" }}>
+                          {statusBadge(o.order_status)}
+                        </td>
+                        <td style={{ padding: "14px 16px" }}>
+                          <button
+                            onClick={() => toggleExpand(oid)}
                             style={{
-                              fontSize: 13, color: "var(--royal-blue)",
-                              fontWeight: 500, textDecoration: "underline",
+                              padding: "5px 14px", background: "transparent",
+                              border: "1px solid var(--border)", borderRadius: 6,
+                              fontSize: 13, cursor: "pointer", color: "var(--text)",
+                              transition: "0.2s",
                             }}
+                            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
+                            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
                           >
-                            View full order page →
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                            {isExpanded ? "▲ Hide" : "▼ View"}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* Expanded row */}
+                      {isExpanded && (
+                        <tr style={{ background: "rgba(128,0,32,0.02)" }}>
+                          <td colSpan={6} style={{ padding: "20px 24px" }}>
+                            <div style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr", gap: 24,
+                            }}>
+                              <div>
+                                <p style={{
+                                  fontSize: 12, fontWeight: 700, color: "var(--text-muted)",
+                                  textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 10
+                                }}>
+                                  Shipping Address
+                                </p>
+                                <div style={{
+                                  background: "white", borderRadius: 8, padding: 14,
+                                  border: "1px solid var(--border)", fontSize: 13,
+                                  color: "var(--text)", lineHeight: 1.7,
+                                }}>
+                                  <strong>{o.customer_name || o.name}</strong><br />
+                                  {o.address && <>{o.address}, </>}{o.city}<br />
+                                  {o.pincode && <>Pincode: {o.pincode}<br /></>}
+                                  {(o.phone || o.customer_phone) && <>Phone: {o.phone || o.customer_phone}</>}
+                                </div>
+                              </div>
+                              <div>
+                                <p style={{
+                                  fontSize: 12, fontWeight: 700, color: "var(--text-muted)",
+                                  textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 10,
+                                }}>
+                                  Order Items
+                                </p>
+                                <div style={{
+                                  background: "white", borderRadius: 8, padding: 14,
+                                  border: "1px solid var(--border)",
+                                }}>
+                                  {(detail?.items || o.items || []).length > 0 ? (
+                                    (detail?.items || o.items).map((item, i) => (
+                                      <div key={i} style={{
+                                        display: "flex", justifyContent: "space-between",
+                                        fontSize: 13, color: "var(--text)",
+                                        paddingBottom: 6, marginBottom: 6,
+                                        borderBottom: i < (detail?.items || o.items).length - 1 ? "1px solid var(--border)" : "none",
+                                      }}>
+                                        <span>{item.product_name || item.name} × {item.quantity}</span>
+                                        <span style={{ fontWeight: 600, color: "var(--maroon)" }}>
+                                          ₹{(item.final_price || item.price || 0).toLocaleString()}
+                                        </span>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                                      {detail ? "No items found" : "Loading items..."}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{
+                              marginTop: 16, display: "flex",
+                              justifyContent: "space-between", alignItems: "center",
+                            }}>
+                              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                                {o.razorpay_payment_id && (
+                                  <span>Payment ID: <code style={{ fontFamily: "monospace", fontSize: 12 }}>{o.razorpay_payment_id}</code></span>
+                                )}
+                              </div>
+                              <Link
+                                to={`/order-summary/${oid}`}
+                                style={{
+                                  fontSize: 13, color: "var(--royal-blue, #3B82F6)",
+                                  fontWeight: 500, textDecoration: "underline",
+                                }}
+                              >
+                                View full order page →
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

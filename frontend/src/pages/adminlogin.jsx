@@ -4,15 +4,15 @@ import { useNavigate } from "react-router-dom";
 const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 // Hardcoded fallback credentials (used if API fails)
-const ADMIN_EMAIL    = "admin@gaura.com";
+const ADMIN_EMAIL = "admin@gaura.com";
 const ADMIN_PASSWORD = "admin123";
 
 function AdminLogin({ onAdminLogin, showToast }) {
   const navigate = useNavigate();
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,19 +21,20 @@ function AdminLogin({ onAdminLogin, showToast }) {
     setLoading(true);
 
     try {
-      // Try real backend first
+      // Try real backend first — backend expects { username, password }
       const res = await fetch(`${API}/api/admin/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        if (onAdminLogin) onAdminLogin(data.user || { email, is_admin: true });
+        if (onAdminLogin) onAdminLogin(data.admin || { email, is_admin: true });
         if (showToast) showToast("Admin login successful", "success");
         navigate("/admin/products");
+        setLoading(false);
         return;
       }
     } catch {
@@ -98,14 +99,14 @@ function AdminLogin({ onAdminLogin, showToast }) {
           )}
 
           <div className="form-group">
-            <label>Admin Email</label>
+            <label>Admin Username / Email</label>
             <input
               className="form-input"
-              type="email"
+              type="text"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="admin@gaura.com"
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 
@@ -137,16 +138,7 @@ function AdminLogin({ onAdminLogin, showToast }) {
           </button>
         </form>
 
-        <div style={{
-          marginTop: 20, padding: "12px 14px",
-          background: "rgba(128,0,32,0.05)",
-          borderRadius: 8, fontSize: 12, color: "var(--text-muted)",
-          lineHeight: 1.7,
-        }}>
-          <strong style={{ color: "var(--maroon)" }}>Default credentials:</strong><br />
-          Email: admin@gaura.com<br />
-          Password: admin123
-        </div>
+
       </div>
     </div>
   );
