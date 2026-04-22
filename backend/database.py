@@ -45,15 +45,33 @@ def disconnect_db():
 
 
 def get_db():
-    """FastAPI dependency – yields a connection and cursor from the pool."""
+    
     conn = db_pool.getconn()
     try:
-        # Use RealDictCursor to return dicts instead of tuples like Express did
+        # Prevent Neon DB idle disconnects: test connection, if closed or dead, replace
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            db_pool.putconn(conn, close=True)
+            conn = db_pool.getconn()
+
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             yield cur
+            
         conn.commit()
     except Exception as e:
-        conn.rollback()
+        try:
+            if not conn.closed:
+                conn.rollback()
+        except Exception:
+            pass
         raise e
     finally:
-        db_pool.putconn(conn)
+        try:
+            if not conn.closed:
+                db_pool.putconn(conn)
+            else:
+                db_pool.putconn(conn, close=True)
+        except Exception:
+            pass

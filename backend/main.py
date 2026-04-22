@@ -49,16 +49,19 @@ app = FastAPI(
     description="Saree e-commerce backend powered by FastAPI",
     version="1.0.0",
     lifespan=lifespan,
+    redirect_slashes=False,  # Prevents 307 redirects that strip auth cookies
 )
 
 # Middleware 
 
+IS_PRODUCTION = os.getenv("RENDER", "") != ""  # Render sets this env var automatically
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SECRET_KEY", "gaura_secret_key"),
-    max_age=60 * 60 * 24,          
-    same_site="lax",
-    https_only=False,            
+    max_age=60 * 60 * 24,                          # 24 hours
+    same_site="none" if IS_PRODUCTION else "lax",   # "lax" for localhost
+    https_only=IS_PRODUCTION,                        # False for localhost
 )
 
 # CORS

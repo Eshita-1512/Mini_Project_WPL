@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import loginImg from "../assets/login.jpeg";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 function Login({ onLogin, showToast }) {
   const navigate = useNavigate();
@@ -30,7 +30,8 @@ function Login({ onLogin, showToast }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Invalid credentials");
+        const errorDetail = Array.isArray(data.detail) ? data.detail[0].msg : data.detail;
+        throw new Error(errorDetail || data.message || "Invalid credentials");
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);
@@ -145,30 +146,6 @@ function Login({ onLogin, showToast }) {
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-
-          {/* Divider */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 12, margin: "20px 0",
-          }}>
-            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>or</span>
-            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-          </div>
-
-          {/* Guest checkout */}
-          <button
-            onClick={handleGuest}
-            style={{
-              width: "100%", padding: "12px",
-              background: "transparent", border: "2px solid var(--border)",
-              borderRadius: 8, fontSize: 14, fontWeight: 500,
-              color: "var(--text)", cursor: "pointer", transition: "0.2s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--maroon)"}
-            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
-          >
-            Continue as Guest →
-          </button>
 
           {/* Links */}
           <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "var(--text-muted)" }}>

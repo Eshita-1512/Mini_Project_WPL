@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import loginImg from "../assets/login.jpeg";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 function Register({ onLogin, showToast }) {
   const navigate = useNavigate();
@@ -47,7 +47,8 @@ function Register({ onLogin, showToast }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Registration failed");
+        const errorDetail = Array.isArray(data.detail) ? data.detail[0].msg : data.detail;
+        throw new Error(errorDetail || data.message || "Registration failed");
       }
       const data = await res.json();
       if (onLogin) onLogin(data.user || data);

@@ -1,15 +1,35 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import saree1 from "../assets/saree1.jpeg";
-import saree2 from "../assets/saree2.jpeg";
+import img_saree1 from "../assets/saree1.jpeg";
+import img_saree2 from "../assets/saree2.jpeg";
+import img_saree3 from "../assets/saree3.jpeg";
+import img_saree4 from "../assets/saree4.jpeg";
+import img_saree5 from "../assets/saree5.jpeg";
+import img_saree6 from "../assets/saree6.jpeg";
+import img_saree7 from "../assets/saree7.jpeg";
+import img_saree8 from "../assets/saree8.jpeg";
+import img_saree9 from "../assets/saree9.jpeg";
+import img_saree10 from "../assets/saree10.jpeg";
+import img_saree11 from "../assets/saree11.jpeg";
+import img_saree12 from "../assets/saree12.jpeg";
+import img_saree13 from "../assets/saree13.jpeg";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
-// Local fallback data for at least the first 2 products
-const LOCAL_PRODUCT_DATA = {
-  "1": { image: saree1, price: 15500, name: "Ore Manjhi", description: "A timeless Banarasi silk saree with intricate gold zari work, handwoven on traditional pit-looms by master artisans.", category_name: "Silk Saree" },
-  "2": { image: saree2, price: 30000, name: "Swarna Kamal", description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari — the crown jewel of any trousseau.", category_name: "Bridal Saree" },
+// ── Map DB filename → local bundled asset ────────────────────────────────────
+const FILENAME_MAP = {
+  "saree1.jpeg": img_saree1,   "saree2.jpeg": img_saree2,
+  "saree3.jpeg": img_saree3,   "saree4.jpeg": img_saree4,
+  "saree5.jpeg": img_saree5,   "saree6.jpeg": img_saree6,
+  "saree7.jpeg": img_saree7,   "saree8.jpeg": img_saree8,
+  "saree9.jpeg": img_saree9,   "saree10.jpeg": img_saree10,
+  "saree11.jpeg": img_saree11, "saree12.jpeg": img_saree12,
+  "saree13.jpeg": img_saree13,
 };
+function resolveImage(imageUrl) {
+  if (!imageUrl) return "";
+  return FILENAME_MAP[imageUrl] || imageUrl;
+}
 
 function ProductDetails({ addToCart, showToast }) {
   const { id } = useParams();
@@ -22,26 +42,24 @@ function ProductDetails({ addToCart, showToast }) {
     setLoading(true);
     fetch(`${API}/api/products/${id}`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then(data => {
+      .then(rawData => {
+        // API returns { success, product: {...} } — extract the product object
+        const data = rawData?.product || rawData;
         if (data) {
-          // Merge with local fallback for images/prices if missing
-          const fallback = LOCAL_PRODUCT_DATA[id];
-          if (fallback) {
-            if (!data.image_url && !data.image) data.image_url = fallback.image;
-            if (!data.price && fallback.price) data.price = fallback.price;
-            if (!data.description && fallback.description) data.description = fallback.description;
-            if (!data.category_name && fallback.category_name) data.category_name = fallback.category_name;
-          }
+          // Map backend field names → frontend field names
+          if (data.original_price) data.price = data.original_price;
+          const pid = data.product_id || data.id || id;
+          data.id = pid;
+          // Always attach local image
+          data.image_url = resolveImage(data.image_url) || "";
           setProduct(data);
         } else {
-          // API returned nothing — use local fallback if available
-          const fallback = LOCAL_PRODUCT_DATA[id];
-          setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+          // API returned nothing — show image-only placeholder if we have the image
+          setProduct(null);
         }
       })
       .catch(() => {
-        const fallback = LOCAL_PRODUCT_DATA[id];
-        setProduct(fallback ? { id, name: fallback.name, ...fallback, image_url: fallback.image } : null);
+        setProduct(null);
       })
       .finally(() => setLoading(false));
   }, [id]);

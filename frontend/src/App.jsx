@@ -18,7 +18,7 @@ import Feedback from "./pages/feedback.jsx";
 import AdminLayout from "./pages/admin.jsx";
 import AdminLogin from "./pages/adminlogin.jsx";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 const CART_KEY = "gaura_cart";
 
 // ─── localStorage helpers ───────────────────────────────────────────────────
@@ -58,8 +58,12 @@ function App() {
   const fetchUser = useCallback(async () => {
     try {
       const res = await fetch(`${API}/api/auth/me`, { credentials: "include" });
-      if (res.ok) setUser(await res.json());
-      else setUser(null);
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user || data);
+      } else {
+        setUser(null);
+      }
     } catch {
       setUser(null);
     }
@@ -75,10 +79,11 @@ function App() {
         const res = await fetch(`${API}/api/cart`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
+          const backendCart = data.cart || (Array.isArray(data) ? data : []);
+          if (backendCart.length > 0) {
             // Backend has items → use backend as source of truth
-            setLocalCart(data);
-            saveLocalCart(data);
+            setLocalCart(backendCart);
+            saveLocalCart(backendCart);
           }
         }
       } catch {
@@ -170,6 +175,8 @@ function App() {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); }
     catch { /* ignore */ }
     setUser(null);
+    setLocalCart([]);
+    localStorage.removeItem(CART_KEY);
     showToast("Logged out successfully");
   };
 
@@ -189,6 +196,7 @@ function App() {
             {/* Cart gets the full local cart + all cart mutation functions */}
             <Route path="/cart" element={
               <Cart
+                user={user}
                 localCart={localCart}
                 showToast={showToast}
                 onUpdateItem={updateCartItem}
@@ -197,7 +205,7 @@ function App() {
               />
             } />
 
-            <Route path="/checkout" element={<Checkout showToast={showToast} localCart={localCart} />} />
+            <Route path="/checkout" element={<Checkout user={user} showToast={showToast} localCart={localCart} />} />
             <Route path="/order-summary/:orderId" element={<OrderSuccess />} />
 
             <Route path="/login"    element={<Login    showToast={showToast} onLogin={setUser} />} />

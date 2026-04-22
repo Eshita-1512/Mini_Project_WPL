@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 /* ─────────────────────────────────────────────
    AdminLayout — wraps all /admin/* pages

@@ -48,6 +48,10 @@ def login(request: Request, body: LoginRequest, cur=Depends(get_db)):
     if not row:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    # ✅ Verify password
+    if row["password"] != body.password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
     # Set user session
     user_data = {
         "userId": row["user_id"],

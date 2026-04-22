@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 
 from database import get_db
 from schemas.models import CartItemRequest, UpdateCartRequest
+from middleware.auth_middleware import require_user
 
 router = APIRouter(prefix="/api/cart", tags=["Cart"])
 
 
 # GET /api/cart 
-@router.get("/")
-def get_cart(request: Request, cur=Depends(get_db)):
+@router.get("")
+def get_cart(request: Request, cur=Depends(get_db), user=Depends(require_user)):
     cart = request.session.get("cart", [])
 
     if len(cart) == 0:
@@ -29,11 +30,11 @@ def get_cart(request: Request, cur=Depends(get_db)):
         if not product:
             continue
 
-        discounted_price = round(float(product["original_price"]) * 0.75, 2)
+        discounted_price = round(float(product["original_price"] or 0) * 0.75, 2)
         cart_details.append({
             "productId": item["productId"],
             "name": product["name"],
-            "original_price": float(product["original_price"]),
+            "original_price": float(product["original_price"] or 0),
             "discounted_price": discounted_price,
             "quantity": item["quantity"],
             "subtotal": round(discounted_price * item["quantity"], 2),
@@ -45,8 +46,8 @@ def get_cart(request: Request, cur=Depends(get_db)):
 
 
 # POST /api/cart 
-@router.post("/")
-def add_to_cart(request: Request, body: CartItemRequest):
+@router.post("")
+def add_to_cart(request: Request, body: CartItemRequest, user=Depends(require_user)):
     if body.quantity < 1:
         raise HTTPException(status_code=400, detail="productId and quantity (>=1) are required")
 
@@ -67,7 +68,7 @@ def add_to_cart(request: Request, body: CartItemRequest):
 
 # PUT /api/cart/{product_id} 
 @router.put("/{product_id}")
-def update_cart_item(request: Request, product_id: int, body: UpdateCartRequest):
+def update_cart_item(request: Request, product_id: int, body: UpdateCartRequest, user=Depends(require_user)):
     if body.quantity < 1:
         raise HTTPException(status_code=400, detail="quantity (>=1) is required")
 
@@ -89,7 +90,7 @@ def update_cart_item(request: Request, product_id: int, body: UpdateCartRequest)
 
 # DELETE /api/cart/{product_id} 
 @router.delete("/{product_id}")
-def remove_cart_item(request: Request, product_id: int):
+def remove_cart_item(request: Request, product_id: int, user=Depends(require_user)):
     cart = request.session.get("cart", [])
 
     if not cart:
@@ -101,7 +102,7 @@ def remove_cart_item(request: Request, product_id: int):
 
 
 # DELETE /api/cart 
-@router.delete("/")
-def clear_cart(request: Request):
+@router.delete("")
+def clear_cart(request: Request, user=Depends(require_user)):
     request.session["cart"] = []
     return {"success": True, "message": "Cart cleared"}

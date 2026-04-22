@@ -1,28 +1,48 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-// ── Saree images (local assets — always available) ───────────────────────────
-import saree1 from "../assets/saree1.jpeg";
-import saree2 from "../assets/saree2.jpeg";
-import saree3 from "../assets/saree3.jpeg";
-import saree4 from "../assets/saree4.jpeg";
-import saree5 from "../assets/saree5.jpeg";
-import saree6 from "../assets/saree6.jpeg";
-import saree7 from "../assets/saree7.jpeg";
-import saree8 from "../assets/saree8.jpeg";
+// ── Saree images (local assets) ──────────────────────────────────────────────
+import img_saree1 from "../assets/saree1.jpeg";
+import img_saree2 from "../assets/saree2.jpeg";
+import img_saree3 from "../assets/saree3.jpeg";
+import img_saree4 from "../assets/saree4.jpeg";
+import img_saree5 from "../assets/saree5.jpeg";
+import img_saree6 from "../assets/saree6.jpeg";
+import img_saree7 from "../assets/saree7.jpeg";
+import img_saree8 from "../assets/saree8.jpeg";
+import img_saree9 from "../assets/saree9.jpeg";
+import img_saree10 from "../assets/saree10.jpeg";
+import img_saree11 from "../assets/saree11.jpeg";
+import img_saree12 from "../assets/saree12.jpeg";
+import img_saree13 from "../assets/saree13.jpeg";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+// ── Map DB filename → local bundled asset ────────────────────────────────────
+const FILENAME_MAP = {
+  "saree1.jpeg": img_saree1,   "saree2.jpeg": img_saree2,
+  "saree3.jpeg": img_saree3,   "saree4.jpeg": img_saree4,
+  "saree5.jpeg": img_saree5,   "saree6.jpeg": img_saree6,
+  "saree7.jpeg": img_saree7,   "saree8.jpeg": img_saree8,
+  "saree9.jpeg": img_saree9,   "saree10.jpeg": img_saree10,
+  "saree11.jpeg": img_saree11, "saree12.jpeg": img_saree12,
+  "saree13.jpeg": img_saree13,
+};
+function resolveImage(imageUrl) {
+  if (!imageUrl) return "";
+  return FILENAME_MAP[imageUrl] || imageUrl;
+}
+
+const API = import.meta.env.PROD ? "" : "http://localhost:8000";
 
 // ── Static fallback — shown when backend is unavailable ──────────────────────
 const FALLBACK_PRODUCTS = [
-  { id: "1", name: "Ore Manjhi",      price: 15500, image_url: saree1, category_name: "Silk Saree",     description: "A timeless Banarasi silk saree with intricate gold zari work." },
-  { id: "2", name: "Swarna Kamal",    price: 30000, image_url: saree2, category_name: "Bridal Saree",   description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari." },
-  { id: "3", name: "Sun Radhike",     price: 13067, image_url: saree3, category_name: "Festive Saree",  description: "Vibrant festive saree ideal for Diwali and Navratri celebrations." },
-  { id: "4", name: "Sun Ri Sajni",    price: 14000, image_url: saree4, category_name: "Silk Saree",     description: "Soft katan silk with subtle thread work — perfect for everyday elegance." },
-  { id: "5", name: "Hum Hai Taiyar", price: 11600, image_url: saree5, category_name: "Festive Saree",  description: "Bold colours and fine weaving make this a festival-season favourite." },
-  { id: "6", name: "Gaura",           price: 16000, image_url: saree6, category_name: "Bridal Saree",   description: "Our signature piece — named after the brand itself. A masterwork of art." },
-  { id: "7", name: "Ganga",           price: 17600, image_url: saree7, category_name: "Silk Saree",     description: "Flowing like the river — pure silk with a naturally luminous finish." },
-  { id: "8", name: "Madhu Maas",      price: 12133, image_url: saree8, category_name: "Occasion Saree", description: "Delicate motifs inspired by the honey season — sweet and sophisticated." },
+  { id: "1", name: "Ore Manjhi",      price: 15500, image_url: img_saree1, category_name: "Silk Saree",     description: "A timeless Banarasi silk saree with intricate gold zari work." },
+  { id: "2", name: "Swarna Kamal",    price: 30000, image_url: img_saree2, category_name: "Bridal Saree",   description: "Exquisite bridal piece with kamal (lotus) motifs woven in real gold zari." },
+  { id: "3", name: "Sun Radhike",     price: 13067, image_url: img_saree3, category_name: "Festive Saree",  description: "Vibrant festive saree ideal for Diwali and Navratri celebrations." },
+  { id: "4", name: "Sun Ri Sajni",    price: 14000, image_url: img_saree4, category_name: "Silk Saree",     description: "Soft katan silk with subtle thread work — perfect for everyday elegance." },
+  { id: "5", name: "Hum Hai Taiyar", price: 11600, image_url: img_saree5, category_name: "Festive Saree",  description: "Bold colours and fine weaving make this a festival-season favourite." },
+  { id: "6", name: "Gaura",           price: 16000, image_url: img_saree6, category_name: "Bridal Saree",   description: "Our signature piece — named after the brand itself. A masterwork of art." },
+  { id: "7", name: "Ganga",           price: 17600, image_url: img_saree7, category_name: "Silk Saree",     description: "Flowing like the river — pure silk with a naturally luminous finish." },
+  { id: "8", name: "Madhu Maas",      price: 12133, image_url: img_saree8, category_name: "Occasion Saree", description: "Delicate motifs inspired by the honey season — sweet and sophisticated." },
 ];
 
 // ── Color swatches (UI only) ──────────────────────────────────────────────────
@@ -67,24 +87,40 @@ function Products({ addToCart, showToast }) {
         fetch(`${API}/api/products/categories`, { credentials: "include" }),
       ]);
 
-      const pData = pRes.ok ? await pRes.json() : [];
-      const cData = cRes.ok ? await cRes.json() : [];
+      const pData = pRes.ok ? await pRes.json() : null;
+      const cData = cRes.ok ? await cRes.json() : null;
 
-      const productList = Array.isArray(pData) && pData.length > 0 ? pData : FALLBACK_PRODUCTS;
+      // API returns { success, products: [...] } — extract the array
+      const rawProducts = pData?.products || (Array.isArray(pData) ? pData : []);
+
+      // Map backend field names → frontend field names + attach local images
+      const productList = rawProducts.length > 0
+        ? rawProducts.map(p => {
+            const pid = p.product_id || p.id;
+            return {
+              ...p,
+              id: pid,
+              price: p.original_price || p.price || 0,
+              image_url: resolveImage(p.image_url) || "",
+            };
+          })
+        : FALLBACK_PRODUCTS;
       setProducts(productList);
 
-      if (Array.isArray(cData) && cData.length > 0) {
-        setCategories(cData);
+      // API returns { success, categories: [...] }
+      const rawCats = cData?.categories || (Array.isArray(cData) ? cData : []);
+      if (rawCats.length > 0) {
+        setCategories(rawCats);
       } else {
         // Derive categories from fallback products
         const cats = [...new Set(productList.map(p => p.category_name).filter(Boolean))];
-        setCategories(cats.map(c => ({ name: c })));
+        setCategories(cats.map(c => ({ category_name: c })));
       }
     } catch {
       // API completely unreachable — use fallback
       setProducts(FALLBACK_PRODUCTS);
       const cats = [...new Set(FALLBACK_PRODUCTS.map(p => p.category_name))];
-      setCategories(cats.map(c => ({ name: c })));
+      setCategories(cats.map(c => ({ category_name: c })));
     } finally {
       setLoading(false);
     }
@@ -149,7 +185,8 @@ function Products({ addToCart, showToast }) {
             <ul style={{ listStyle: "none" }}>
               <SideItem label="All" active={activeCat === "all"} onClick={() => setActiveCat("all")} />
               {categories.map(c => {
-                const name = typeof c === "string" ? c : (c.name || c);
+                const name = typeof c === "string" ? c : (c.category_name || c.name || "");
+                if (!name) return null;
                 return (
                   <SideItem
                     key={name}
@@ -337,12 +374,12 @@ function ProductCard({ product, onAddToCart }) {
       }}
     >
       {/* Image */}
-      <div style={{ position: "relative", overflow: "hidden", height: 340, background: "var(--champagne)" }}>
+      <div style={{ position: "relative", overflow: "hidden", height: 340, background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={product.name}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", transition: "transform 0.4s", padding: 4 }}
             onMouseEnter={e => e.currentTarget.style.transform = "scale(1.07)"}
             onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
           />
